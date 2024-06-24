@@ -4,10 +4,8 @@ import string
 from openpyxl import Workbook
 from datetime import datetime, timedelta
 
-#inicijalizacija fakera
 fake = Faker()
 
-#enumi
 exhibition_statuses = [
     "READY_TO_OPEN", "OPEN", "CLOSED", "ARCHIVED"
 ]
@@ -85,6 +83,16 @@ periods = {
     "SEASONAL": ["Ancient", "Medieval", "Modern", "19th Century", "20th Century", "21st Century"],
 }
 
+item_description_templates = [
+    "This {category} from the {period} period is a remarkable example of its kind, showcasing the typical characteristics and craftsmanship of that era.",
+    "A fine piece of {category} originating from the {period} period, this item exemplifies the artistic style of its time.",
+    "From the {period} period, this {category} stands out for its unique features and historical significance.",
+    "An exquisite {category} crafted during the {period} period, representing the culture and techniques of the era.",
+    "This {category} is a splendid example from the {period} period, known for its distinctive artistic and cultural value.",
+    "Originating in the {period} period, this {category} provides insight into the aesthetics and craftsmanship of that time.",
+    "A notable {category} from the {period} period, this item is a testament to the skills and artistic vision of its creator."
+]
+
 adjectives = [
     "Ancient", "Medieval", "Modern", "Contemporary", "Fascinating", "Incredible",
     "Remarkable", "Enigmatic", "Historic", "Mystical", "Innovative", "Timeless",
@@ -121,7 +129,6 @@ additional_descriptive_phrases = [
     "celebrates the wonder of human ingenuity and artistic expression."
 ]
 
-# Long description components
 long_description_introductions = [
     "Step into the world of", "Discover the fascinating journey of", "Explore the rich history and culture of",
     "Embark on a captivating exploration of", "Immerse yourself in the stories and artifacts of",
@@ -236,14 +243,18 @@ negative_review_endings = [
 def generate_exhibition():
     start_date = fake.date_between(start_date='-5y', end_date='+1y')
     end_date = fake.date_between(start_date=start_date, end_date=start_date + timedelta(days=365))
-    price = random.randint(0, 50)
-    tickets_sold = random.randint(0, 1000)
+    price = random.randint(0, 25)
 
     exhibition_id = generate_random_id()
     exhibition_name = generate_exhibition_name()
     exhibition_theme = random.choice(exhibition_themes)
+    exhibition_status = determine_exhibition_status(start_date, end_date)
+    tickets_sold = calculate_tickets_sold(exhibition_status, start_date, end_date)
     items_count = random.randint(1, 5)
     items = [generate_item(exhibition_theme) for _ in range(items_count)]
+    reviews = []
+    if exhibition_status != "READY_TO_OPEN":
+        reviews = [generate_review() for _ in range(random.randint(1, 10))]
 
     exhibition = {
         "id": exhibition_id,
@@ -251,7 +262,7 @@ def generate_exhibition():
         "shortDescription": generate_short_description(exhibition_name),
         "longDescription": generate_long_description(exhibition_name, items),
         "theme": exhibition_theme,
-        "status": determine_exhibition_status(start_date, end_date),
+        "status": exhibition_status,
         "startDate": start_date.isoformat(),
         "endDate": end_date.isoformat() if end_date else None,
         "price": price,
@@ -260,7 +271,7 @@ def generate_exhibition():
         "curator": generate_curator(),
         "room": generate_room(),
         "items": items,
-        "reviews": [generate_review() for _ in range(random.randint(1, 10))]
+        "reviews": reviews
     }
 
     return exhibition
@@ -275,9 +286,20 @@ def generate_exhibition_name():
         name += " " + random.choice(phrases)
     return name
 
+def calculate_tickets_sold(status, start_date, end_date):
+    today = datetime.today().date()
+    if status == "READY_TO_OPEN":
+        return random.randint(0, 1500)
+    elif status == "OPEN":
+        days_open = (today - start_date).days
+        return days_open * random.randint(100, 1000)
+    elif status in ["CLOSED", "ARCHIVED"]:
+        days_open = (end_date - start_date).days
+        return days_open * random.randint(100, 1000)
+
 def generate_short_description(exhibition_name):
     name_parts = exhibition_name.split()
-    key_phrases = " ".join(name_parts[:2])  # Use first two words for simplicity
+    key_phrases = " ".join(name_parts[:2])
     description = f"{key_phrases} {random.choice(additional_descriptive_phrases)}."
     return description
 
@@ -320,22 +342,16 @@ def generate_item(theme):
     period_options = periods[theme]
     period = random.choice(period_options)
 
-    # Determine item categories based on theme
     category_options = item_categories[theme]
     category = random.choice(category_options)
 
-    # Generate a name based on category and period
     name = f"{fake.word().capitalize()} {category.lower()}"
 
-    # Generate a description that ties in with the name and category
-    description = f"This {category.lower()} from the {period.lower()} period is a" \
-                  f" remarkable example of its kind, showcasing the typical " \
-                  f"characteristics and craftsmanship of that era."
+    description_template = random.choice(item_description_templates)
+    description = description_template.format(category=category.lower(), period=period.lower())
 
-    # Generate an author's name, filtered by region if needed
     authors_name = fake.name()
 
-    # Generate a year of creation that aligns with the period
     year_ranges = {
         "Ancient": (-5000, 500),
         "Medieval": (500, 1500),
@@ -358,17 +374,6 @@ def generate_item(theme):
         "period": period,
         "category": category
     }
-
-#def generate_item():
-    #return {
-        #"name": fake.word(),
-        #"description": fake.paragraph(nb_sentences=2),
-        #"authorsName": fake.name(),
-        #"yearOfCreation": str(fake.year()),
-       # "period": fake.word(),
-        #"category": random.choice(item_categories)
-    #}
-
 
 def generate_room():
     floor = random.randint(1, 5)
@@ -405,17 +410,13 @@ def generate_review():
         "rating": rating
     }
 
-# Generate a list of exhibitions
 def generate_exhibitions(num):
     return [generate_exhibition() for _ in range(num)]
 
-
 def save_to_excel(data, filename):
-    # Create a new workbook
     wb = Workbook()
-    ws = wb.active  # Get the active worksheet
+    ws = wb.active
 
-    # Define header row
     header = [
         'id', 'name', 'shortDescription', 'longDescription', 'theme', 'status', 'startDate', 'endDate',
         'price', 'ticketsSold', 'organizer_firstName', 'organizer_lastName',
@@ -423,10 +424,8 @@ def save_to_excel(data, filename):
         'room_number', 'items', 'reviews'
     ]
 
-    # Write header row
     ws.append(header)
 
-    # Write each exhibition as a row in the Excel worksheet
     for exhibition in data:
         items = [
             f"Name: {item['name']}, Description: {item['description']}, AuthorsName: {item['authorsName']}, YearOfCreation: {item['yearOfCreation']}, Period: {item['period']}, Category: {item['category']}"
@@ -459,11 +458,10 @@ def save_to_excel(data, filename):
         ]
         ws.append(row)
 
-    # Save workbook to filename
     wb.save(filename)
 
 if __name__ == "__main__":
-    num_exhibitions = 1000  # Change this number as needed
+    num_exhibitions = 1000
     exhibitions = generate_exhibitions(num_exhibitions)
     save_to_excel(exhibitions, 'exhibitions.xlsx')
 
