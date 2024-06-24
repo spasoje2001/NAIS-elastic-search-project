@@ -6,8 +6,10 @@ import lombok.Setter;
 @Getter @Setter
 public class Organizer {
 
-    private String username;
+    //private String username; nije mi bas imalo smisla da pretrazujemo po username-u organizatora ili kustosa pa sam uklonio to
+
     private String firstName;
+
     private String lastName;
     
 }

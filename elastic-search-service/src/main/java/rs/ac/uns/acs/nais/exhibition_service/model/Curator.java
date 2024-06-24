@@ -6,8 +6,10 @@ import lombok.Setter;
 @Getter @Setter
 public class Curator {
 
-    private String username;
+    //private String username;
+
     private String firstName;
+
     private String lastName;
 
 }

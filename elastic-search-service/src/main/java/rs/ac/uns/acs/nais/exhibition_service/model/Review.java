@@ -11,5 +11,5 @@ public class Review {
     private String text;
 
     private Integer rating;
-    
+
 }
