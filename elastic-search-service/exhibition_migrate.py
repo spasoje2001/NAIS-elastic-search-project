@@ -9,7 +9,6 @@ fake = Faker()
 
 #enumi
 exhibition_statuses = [
-    "PROPOSED", "CURATING", "AWAITING_APPROVAL",
     "READY_TO_OPEN", "OPEN", "CLOSED", "ARCHIVED"
 ]
 exhibition_themes = [
@@ -22,11 +21,69 @@ exhibition_themes = [
     "MILITARY_HISTORY", "ENVIRONMENTAL_SCIENCE", "CHILDREN_EDUCATION",
     "SEASONAL"
 ]
-item_categories = [
-    "PAINTING", "DRAWING", "SCULPTURE", "PRINT",
-    "PHOTOGRAPH", "ARTIFACT", "CLOTHING", "SPECIMEN",
-    "FOSSIL", "ANIMAL", "MINERAL", "POTTERY", "JEWELRY"
-]
+
+#item_categories = [
+#    "PAINTING", "DRAWING", "SCULPTURE", "PRINT",
+#    "PHOTOGRAPH", "ARTIFACT", "CLOTHING", "SPECIMEN",
+#    "FOSSIL", "ANIMAL", "MINERAL", "POTTERY", "JEWELRY"
+#]
+
+item_categories = {
+    "ANCIENT_HISTORY": ["ARTIFACT", "SCULPTURE", "SPECIMEN", "FOSSIL", "POTTERY", "JEWELRY"],
+    "MEDIEVAL_HISTORY": ["ARTIFACT", "SCULPTURE", "CLOTHING", "POTTERY", "JEWELRY"],
+    "MODERN_HISTORY": ["ARTIFACT", "CLOTHING", "POTTERY", "JEWELRY"],
+    "FINE_ARTS": ["PAINTING", "DRAWING", "SCULPTURE", "PRINT", "PHOTOGRAPH"],
+    "CONTEMPORARY_ART": ["PAINTING", "DRAWING", "SCULPTURE", "PRINT", "PHOTOGRAPH"],
+    "PHOTOGRAPHY": ["PHOTOGRAPH", "PRINT", "ARTIFACT"],
+    "SCULPTURE": ["SCULPTURE", "PHOTOGRAPH", "ARTIFACT"],
+    "SCIENCE_AND_TECHNOLOGY": ["SPECIMEN", "FOSSIL", "MINERAL", "ARTIFACT", "PHOTOGRAPH", "PRINT"],
+    "NATURAL_HISTORY": ["SPECIMEN", "FOSSIL", "ANIMAL", "MINERAL", "ARTIFACT", "PHOTOGRAPH", "PRINT"],
+    "MARITIME": ["SPECIMEN", "FOSSIL", "ANIMAL", "ARTIFACT"],
+    "AVIATION": ["ARTIFACT", "PHOTOGRAPH", "PRINT", "CLOTHING"],
+    "SPACE_EXPLORATION": ["ARTIFACT", "PHOTOGRAPH", "PRINT", "CLOTHING"],
+    "WORLD_CULTURES": ["ARTIFACT", "CLOTHING", "POTTERY", "JEWELRY", "PHOTOGRAPH"],
+    "INDIGENOUS_CULTURES": ["ARTIFACT", "CLOTHING", "POTTERY", "JEWELRY"],
+    "MUSIC_HISTORY": ["ARTIFACT", "PHOTOGRAPH", "PRINT"],
+    "LITERARY_ARTS": ["ARTIFACT", "PRINT"],
+    "FASHION_AND_DESIGN": ["CLOTHING", "JEWELRY", "PHOTOGRAPH", "PRINT"],
+    "FILM_AND_MEDIA": ["ARTIFACT", "CLOTHING", "JEWELRY", "PRINT", "PHOTOGRAPH"],
+    "ARCHAEOLOGY": ["ARTIFACT", "POTTERY", "JEWELRY"],
+    "MILITARY_HISTORY": ["ARTIFACT", "CLOTHING", "JEWELRY", "PHOTOGRAPH", "PRINT"],
+    "ENVIRONMENTAL_SCIENCE": ["SPECIMEN", "FOSSIL", "ANIMAL", "MINERAL", "ARTIFACT"],
+    "CHILDREN_EDUCATION": ["ARTIFACT", "CLOTHING", "PHOTOGRAPH", "DRAWING", "ANIMAL", "PRINT"],
+    "SEASONAL": ["ARTIFACT", "CLOTHING", "JEWELRY"]
+}
+
+#periods = [
+#    "Ancient", "Medieval", "Renaissance", "Baroque", "Modern", "Contemporary",
+#    "19th Century", "20th Century", "21st Century"
+#]
+
+periods = {
+    "ANCIENT_HISTORY": ["Ancient"],
+    "MEDIEVAL_HISTORY": ["Medieval"],
+    "MODERN_HISTORY": ["Baroque", "19th Century", "20th Century", "21st Century"],
+    "FINE_ARTS": ["Renaissance", "Baroque", "19th Century", "20th Century", "21st Century"],
+    "CONTEMPORARY_ART": ["21st Century"],
+    "PHOTOGRAPHY": ["19th Century", "20th Century", "21st Century"],
+    "SCULPTURE": ["Ancient", "Renaissance", "Modern", "Contemporary"],
+    "SCIENCE_AND_TECHNOLOGY": ["19th Century", "20th Century", "21st Century"],
+    "NATURAL_HISTORY": ["Ancient", "19th Century", "20th Century", "21st Century"],
+    "MARITIME": ["Ancient", "19th Century", "20th Century", "21st Century"],
+    "AVIATION": ["20th Century", "21st Century"],
+    "SPACE_EXPLORATION": ["20th Century", "21st Century"],
+    "WORLD_CULTURES": ["Ancient", "Medieval", "Modern", "19th Century", "20th Century", "21st Century"],
+    "INDIGENOUS_CULTURES": ["Ancient", "Medieval",  "Modern", "Contemporary"],
+    "MUSIC_HISTORY": ["Renaissance", "Baroque", "19th Century", "20th Century", "21st Century"],
+    "LITERARY_ARTS": ["Renaissance", "Baroque", "19th Century", "20th Century", "21st Century"],
+    "FASHION_AND_DESIGN": ["19th Century", "20th Century", "21st Century"],
+    "FILM_AND_MEDIA": ["20th Century", "21st Century"],
+    "ARCHAEOLOGY": ["Ancient", "Medieval"],
+    "MILITARY_HISTORY": ["19th Century", "20th Century", "21st Century"],
+    "ENVIRONMENTAL_SCIENCE": ["20th Century", "21st Century"],
+    "CHILDREN_EDUCATION": ["19th Century", "20th Century", "21st Century"],
+    "SEASONAL": ["Ancient", "Medieval", "Modern", "19th Century", "20th Century", "21st Century"],
+}
 
 adjectives = [
     "Ancient", "Medieval", "Modern", "Contemporary", "Fascinating", "Incredible",
@@ -177,23 +234,24 @@ negative_review_endings = [
 ]
 
 def generate_exhibition():
-    start_date = fake.date_between(start_date='-1y', end_date='today')
-    end_date = fake.date_between(start_date=start_date, end_date='+1y') if random.choice([True, False]) else None
+    start_date = fake.date_between(start_date='-5y', end_date='+1y')
+    end_date = fake.date_between(start_date=start_date, end_date=start_date + timedelta(days=365))
     price = random.randint(0, 50)
     tickets_sold = random.randint(0, 1000)
 
     exhibition_id = generate_random_id()
     exhibition_name = generate_exhibition_name()
+    exhibition_theme = random.choice(exhibition_themes)
     items_count = random.randint(1, 5)
-    items = [generate_item() for _ in range(items_count)]
+    items = [generate_item(exhibition_theme) for _ in range(items_count)]
 
     exhibition = {
         "id": exhibition_id,
         "name": exhibition_name,
         "shortDescription": generate_short_description(exhibition_name),
         "longDescription": generate_long_description(exhibition_name, items),
-        "theme": random.choice(exhibition_themes),
-        "status": random.choice(exhibition_statuses),
+        "theme": exhibition_theme,
+        "status": determine_exhibition_status(start_date, end_date),
         "startDate": start_date.isoformat(),
         "endDate": end_date.isoformat() if end_date else None,
         "price": price,
@@ -241,21 +299,86 @@ def generate_long_description(exhibition_name, items):
     long_description = f"{introduction} {background} {highlights} {experience} {conclusion}"
     return long_description
 
-def generate_item():
+def determine_exhibition_status(start_date, end_date):
+    today = datetime.now().date()
+    one_year_after_end_date = end_date + timedelta(days=365)
+
+    if start_date > today:
+        return "READY_TO_OPEN"
+    elif start_date <= today < end_date:
+        return "OPEN"
+    elif today < one_year_after_end_date:
+        return "CLOSED"
+    else:
+        return "ARCHIVED"
+
+
+def generate_item(theme):
+    if theme not in periods:
+        raise ValueError(f"Invalid theme '{theme}'. Theme must be one of: {', '.join(periods.keys())}")
+
+    period_options = periods[theme]
+    period = random.choice(period_options)
+
+    # Determine item categories based on theme
+    category_options = item_categories[theme]
+    category = random.choice(category_options)
+
+    # Generate a name based on category and period
+    name = f"{fake.word().capitalize()} {category.lower()}"
+
+    # Generate a description that ties in with the name and category
+    description = f"This {category.lower()} from the {period.lower()} period is a" \
+                  f" remarkable example of its kind, showcasing the typical " \
+                  f"characteristics and craftsmanship of that era."
+
+    # Generate an author's name, filtered by region if needed
+    authors_name = fake.name()
+
+    # Generate a year of creation that aligns with the period
+    year_ranges = {
+        "Ancient": (-5000, 500),
+        "Medieval": (500, 1500),
+        "Renaissance": (1300, 1600),
+        "Baroque": (1600, 1750),
+        "Modern": (1750, 1900),
+        "Contemporary": (1900, 2024),
+        "19th Century": (1801, 1900),
+        "20th Century": (1901, 2000),
+        "21st Century": (2001, 2024)
+    }
+    start_year, end_year = year_ranges[period]
+    year_of_creation = random.randint(start_year, end_year)
+
     return {
-        "name": fake.word(),
-        "description": fake.paragraph(nb_sentences=2),
-        "authorsName": fake.name(),
-        "yearOfCreation": str(fake.year()),
-        "period": fake.word(),
-        "category": random.choice(item_categories)
+        "name": name,
+        "description": description,
+        "authorsName": authors_name,
+        "yearOfCreation": str(year_of_creation),
+        "period": period,
+        "category": category
     }
 
+#def generate_item():
+    #return {
+        #"name": fake.word(),
+        #"description": fake.paragraph(nb_sentences=2),
+        #"authorsName": fake.name(),
+        #"yearOfCreation": str(fake.year()),
+       # "period": fake.word(),
+        #"category": random.choice(item_categories)
+    #}
+
+
 def generate_room():
+    floor = random.randint(1, 5)
+    room_base_number = floor * 10 + random.randint(0,9)
+    room_number = str(room_base_number)
+    if random.choice([True, False]):  # 50% chance to add a letter
+        room_number += random.choice('abcde')
     return {
-        "name": fake.word(),
-        "floor": str(random.randint(1, 5)),
-        "number": str(random.randint(100, 500))
+        "floor": str(floor),
+        "number": room_number
     }
 
 def generate_organizer():
@@ -296,7 +419,7 @@ def save_to_excel(data, filename):
     header = [
         'id', 'name', 'shortDescription', 'longDescription', 'theme', 'status', 'startDate', 'endDate',
         'price', 'ticketsSold', 'organizer_firstName', 'organizer_lastName',
-        'curator_firstName', 'curator_lastName', 'room_name', 'room_floor',
+        'curator_firstName', 'curator_lastName', 'room_floor',
         'room_number', 'items', 'reviews'
     ]
 
@@ -329,7 +452,6 @@ def save_to_excel(data, filename):
             exhibition['organizer']['lastName'],
             exhibition['curator']['firstName'],
             exhibition['curator']['lastName'],
-            exhibition['room']['name'],
             exhibition['room']['floor'],
             exhibition['room']['number'],
             ' | '.join(items),
