@@ -28,6 +28,8 @@ public class Event {
 
     private Organizer organizer;
 
+    private Room room;
+
     private Collection<Review> reviews;
 
     public Double getAverageRating() {
