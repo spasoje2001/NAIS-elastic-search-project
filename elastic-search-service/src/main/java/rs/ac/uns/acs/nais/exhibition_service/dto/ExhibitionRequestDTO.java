@@ -7,6 +7,7 @@ import rs.ac.uns.acs.nais.exhibition_service.enums.ExhibitionStatus;
 import rs.ac.uns.acs.nais.exhibition_service.enums.ExhibitionTheme;
 import rs.ac.uns.acs.nais.exhibition_service.model.*;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 
@@ -17,8 +18,8 @@ public class ExhibitionRequestDTO {
     private String longDescription;
     private ExhibitionTheme theme;
     private ExhibitionStatus status;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Integer price;
     private Organizer organizer;
     private Curator curator;

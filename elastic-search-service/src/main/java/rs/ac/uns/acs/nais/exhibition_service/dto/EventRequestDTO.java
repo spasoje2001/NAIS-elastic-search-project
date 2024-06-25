@@ -1,5 +1,6 @@
 package rs.ac.uns.acs.nais.exhibition_service.dto;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import lombok.Getter;
@@ -12,7 +13,7 @@ public class EventRequestDTO {
 
     private String name;
     private String description;
-    private Date startDateTime;
+    private LocalDate startDateTime;
     private Integer durationMinutes;
     private Integer price;
     private Organizer organizer;

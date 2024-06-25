@@ -470,6 +470,7 @@ def index_exhibitions_to_elasticsearch(exhibitions):
         action = {
             "_index": "exhibition",  # Elasticsearch index name
             "_source": {
+                "_class": ["rs.ac.uns.acs.nais.exhibition_service.model.Exhibition"],
                 "name": exhibition['name'],
                 "shortDescription": exhibition['shortDescription'],
                 "longDescription": exhibition['longDescription'],
@@ -495,9 +496,9 @@ def index_exhibitions_to_elasticsearch(exhibitions):
 if __name__ == "__main__":
     num_exhibitions = 1000
     exhibitions = generate_exhibitions(num_exhibitions)
-    save_to_excel(exhibitions, 'exhibitions.xlsx')
+    #save_to_excel(exhibitions, 'exhibitions.xlsx')
     index_exhibitions_to_elasticsearch(exhibitions)
-    #if es.indices.exists(index="exhibition"):
-        #print("Index 'exhibition' already exists.")
+    if es.indices.exists(index="exhibition"):
+        print("Index 'exhibition' already exists.")
 
 

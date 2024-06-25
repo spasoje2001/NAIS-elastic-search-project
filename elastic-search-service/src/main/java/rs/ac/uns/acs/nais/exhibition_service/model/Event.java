@@ -1,5 +1,6 @@
 package rs.ac.uns.acs.nais.exhibition_service.model;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 
@@ -23,7 +24,7 @@ public class Event {
     private String description;
 
     @Field(type = FieldType.Date)
-    private Date startDateTime;
+    private LocalDate startDateTime;
 
     private Integer durationMinutes;
 
