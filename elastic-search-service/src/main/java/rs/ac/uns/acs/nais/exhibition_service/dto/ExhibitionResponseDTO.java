@@ -20,8 +20,8 @@ public class ExhibitionResponseDTO {
     private ExhibitionStatus status;
     private Date startDate;
     private Date endDate;
-    private Integer price; // The price in whole euros
-    private Integer ticketsSold; // The price in whole euros
+    private Integer price;
+    private Integer ticketsSold;
     private Organizer organizer;
     private Curator curator;
     private Room room;

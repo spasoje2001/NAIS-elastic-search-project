@@ -5,6 +5,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import rs.ac.uns.acs.nais.exhibition_service.enums.ExhibitionStatus;
 import rs.ac.uns.acs.nais.exhibition_service.enums.ExhibitionTheme;
 
@@ -30,8 +32,10 @@ public class Exhibition {
 
     private ExhibitionStatus status;
 
+    @Field(type = FieldType.Date)
     private Date startDate;
 
+    @Field(type = FieldType.Date)
     private Date endDate;
 
     private Integer price; // The price in whole euros

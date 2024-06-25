@@ -3,8 +3,12 @@ from faker import Faker
 import string
 from openpyxl import Workbook
 from datetime import datetime, timedelta
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
+
 
 fake = Faker()
+es = Elasticsearch(['http://localhost:9200'])
 
 exhibition_statuses = [
     "READY_TO_OPEN", "OPEN", "CLOSED", "ARCHIVED"
@@ -264,7 +268,7 @@ def generate_exhibition():
         "theme": exhibition_theme,
         "status": exhibition_status,
         "startDate": start_date.isoformat(),
-        "endDate": end_date.isoformat() if end_date else None,
+        "endDate": end_date.isoformat(),
         "price": price,
         "ticketsSold": tickets_sold,
         "organizer": generate_organizer(),
@@ -460,9 +464,40 @@ def save_to_excel(data, filename):
 
     wb.save(filename)
 
+def index_exhibitions_to_elasticsearch(exhibitions):
+    actions = []
+    for exhibition in exhibitions:
+        action = {
+            "_index": "exhibition",  # Elasticsearch index name
+            "_source": {
+                "name": exhibition['name'],
+                "shortDescription": exhibition['shortDescription'],
+                "longDescription": exhibition['longDescription'],
+                "theme": exhibition['theme'],
+                "status": exhibition['status'],
+                "startDate": exhibition['startDate'],
+                "endDate": exhibition['endDate'],
+                "price": exhibition['price'],
+                "ticketsSold": exhibition['ticketsSold'],
+                "organizer": exhibition['organizer'],
+                "curator": exhibition['curator'],
+                "room": exhibition['room'],
+                "items": exhibition['items'],
+                "reviews": exhibition['reviews']
+            }
+        }
+        actions.append(action)
+
+    # Use Elasticsearch bulk helper to efficiently index multiple documents
+    success, _ = bulk(es, actions)
+    print(f"Indexed {success} documents")
+
 if __name__ == "__main__":
     num_exhibitions = 1000
     exhibitions = generate_exhibitions(num_exhibitions)
     save_to_excel(exhibitions, 'exhibitions.xlsx')
+    index_exhibitions_to_elasticsearch(exhibitions)
+    #if es.indices.exists(index="exhibition"):
+        #print("Index 'exhibition' already exists.")
 
 

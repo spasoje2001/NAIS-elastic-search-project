@@ -3,8 +3,11 @@ from faker import Faker
 import string
 from openpyxl import Workbook
 from datetime import datetime, timedelta
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
 
 fake = Faker()
+es = Elasticsearch(['http://localhost:9200'])
 
 adjectives = [
     "Exciting", "Engaging", "Interactive", "Inspiring", "Dynamic", "Vibrant",
@@ -267,9 +270,33 @@ def save_to_excel(data, filename):
 
     wb.save(filename)
 
+def index_events_to_elasticsearch(events):
+    actions = []
+    for event in events:
+        action = {
+            "_index": "event",  # Elasticsearch index name
+            "_source": {
+                "name": event['name'],
+                "description": event['description'],
+                "startDateTime": event['startDateTime'],
+                "durationMinutes": event['durationMinutes'],
+                "price": event['price'],
+                "organizer": event['organizer'],
+                "room": event['room'],
+                "reviews": event['reviews']
+            }
+        }
+        actions.append(action)
+
+    # Use Elasticsearch bulk helper to efficiently index multiple documents
+    success, _ = bulk(es, actions)
+    print(f"Indexed {success} documents")
+
 if __name__ == "__main__":
     num_events = 1000
-    exhibitions = generate_events(num_events)
-    save_to_excel(exhibitions, 'events.xlsx')
-
+    events = generate_events(num_events)
+    save_to_excel(events, 'events.xlsx')
+    index_events_to_elasticsearch(events)
+    #if es.indices.exists(index="event"):
+        #print("Index 'event' already exists.")
 

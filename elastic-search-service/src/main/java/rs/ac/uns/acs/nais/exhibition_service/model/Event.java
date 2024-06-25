@@ -8,6 +8,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Document(indexName = "event")
 @Getter @Setter
@@ -20,6 +22,7 @@ public class Event {
 
     private String description;
 
+    @Field(type = FieldType.Date)
     private Date startDateTime;
 
     private Integer durationMinutes;
