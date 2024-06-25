@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>rs.ac.uns.acs.nais</groupId>
-	<artifactId>exhibition-service</artifactId>
+	<artifactId>elasticsearch-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>exhibition-service</name>
+	<name>elasticsearch-service</name>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
@@ -60,11 +60,12 @@
 			<version>3.2.0</version>
 		</dependency>
 
-
+		<!-- Eureka Discovery client -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
+
 	</dependencies>
 
 	<build>
