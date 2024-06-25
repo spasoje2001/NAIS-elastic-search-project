@@ -8,49 +8,43 @@
 		<version>3.3.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>rs.ac.uns.acs.nais</groupId>
-	<artifactId>elasticsearch-service</artifactId>
+	<groupId>rs.uns.ac.rs.nais</groupId>
+	<artifactId>orchestrator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>elasticsearch-service</name>
+	<name>orchestrator</name>
 	<description>Demo project for Spring Boot</description>
-
+	<url/>
+	<licenses>
+		<license/>
+	</licenses>
+	<developers>
+		<developer/>
+	</developers>
+	<scm>
+		<connection/>
+		<developerConnection/>
+		<tag/>
+		<url/>
+	</scm>
 	<properties>
 		<java.version>22</java.version>
 	</properties>
-	
 	<dependencies>
-		
-		<!-- ElasticSearch -->
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
-		<!-- Lombok -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<!-- Spring Boot -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
-		<!-- Spring Web -->
+
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		
-		<!-- Swagger UI -->
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.5.0</version>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-core</artifactId>
 		</dependency>
 
 		<!-- ModelMapper -->
@@ -60,10 +54,21 @@
 			<version>3.2.0</version>
 		</dependency>
 
-		<!-- Eureka Discovery client -->
+
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>annotationProcessor</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 
 	</dependencies>
@@ -84,17 +89,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>2023.0.2</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 </project>

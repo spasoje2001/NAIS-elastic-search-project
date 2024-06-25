@@ -13,7 +13,9 @@ services:
     build: ./api-gateway
     image: gateway-api:latest
     environment:
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
+      - ELASTICSEARCH_SERVICE_HOST=elasticsearch-service
+      - ELASTICSEARCH_SERVICE_PORT=8080
     depends_on:
       - eureka-server
     ports:
@@ -21,12 +23,13 @@ services:
 
   elasticsearch-service:
     build: ./elastic-search-service
-    image: elasticsearch-service
+    image: elasticsearch-service:latest
     container_name: elasticsearch-service
     restart: always
     ports:
       - 8080:8080
     environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka
       - ELASTICSEARCH_HOST=elasticsearch
       - ELASTICSEARCH_PORT=9200
     depends_on:

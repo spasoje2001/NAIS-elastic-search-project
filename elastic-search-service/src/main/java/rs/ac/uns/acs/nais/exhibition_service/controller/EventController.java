@@ -24,7 +24,7 @@ import rs.ac.uns.acs.nais.exhibition_service.service.IEventService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "event")
+@RequestMapping(value = "events")
 public class EventController {
 
     private final IEventService eventService;
