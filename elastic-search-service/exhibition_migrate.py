@@ -505,7 +505,6 @@ def index_exhibitions_to_elasticsearch(exhibitions):
         }
         actions.append(action)
 
-    # Use Elasticsearch bulk helper to efficiently index multiple documents
     success, _ = bulk(es, actions)
     print(f"Indexed {success} documents")
 
@@ -514,7 +513,7 @@ if __name__ == "__main__":
     exhibitions = generate_exhibitions(num_exhibitions)
     #save_to_excel(exhibitions, 'exhibitions.xlsx')
     index_exhibitions_to_elasticsearch(exhibitions)
-    if es.indices.exists(index="exhibition"):
-        print("Index 'exhibition' already exists.")
+    #if es.indices.exists(index="exhibition"):
+        #print("Index 'exhibition' already exists.")
 
 

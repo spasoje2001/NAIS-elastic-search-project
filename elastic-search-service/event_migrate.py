@@ -2,7 +2,7 @@ import random
 from faker import Faker
 import string
 from openpyxl import Workbook
-from datetime import datetime, timedelta
+from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 

@@ -2,6 +2,10 @@ package rs.ac.uns.acs.nais.exhibition_service.controller;
 
 import com.itextpdf.text.DocumentException;
 
+import org.apache.pdfbox.io.IOUtils;
+import org.springframework.http.HttpStatus;
+import rs.ac.uns.acs.nais.exhibition_service.service.IExhibitionService;
+import rs.ac.uns.acs.nais.exhibition_service.service.IPdfService;
 import rs.ac.uns.acs.nais.exhibition_service.service.impl.PdfService;
 
 import org.springframework.core.io.InputStreamResource;
@@ -17,69 +21,32 @@ import java.io.IOException;
 @RequestMapping("/pdfs.json")
 public class PdfController {
 
-    private final PdfService pdfService;
+    private final IPdfService pdfService;
+
 
     public PdfController(PdfService pdfService) {
         this.pdfService = pdfService;
     }
+    @GetMapping("/generateMuseumReport")
+    public ResponseEntity<byte[]> generateMuseumReport(
+            @RequestParam int query1MinTicketsSold,
+            @RequestParam int query2MinDailyAverage,
+            @RequestParam String query1Theme,
+            @RequestParam int query2MinPrice,
+            @RequestParam String query2SearchText
+    ) {
+        try {
+            ByteArrayInputStream bis = pdfService.generatePdfReport(query1MinTicketsSold, query2MinDailyAverage, query1Theme, query2MinPrice, query2SearchText);
+            byte[] contents = IOUtils.toByteArray(bis);
 
-    // 10 - 30
-    // @GetMapping("/in-range-pdf")
-    // public ResponseEntity<InputStreamResource> generateToursInPriceRangePdf(@RequestParam("requestedById") String requestedById,
-    //                                                                         @RequestParam("min") Integer minPrice,
-    //                                                                         @RequestParam("max") Integer maxPrice) throws DocumentException, IOException {
-    //     ByteArrayInputStream bis = pdfService.generateToursInPriceRangePdf(Integer.valueOf(requestedById), minPrice, maxPrice);
-    //     HttpHeaders headers = new HttpHeaders();
-    //     headers.add("Content-Disposition", "inline; filename=cleansed-items.pdf");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", "museumReport.pdf");
 
-    //     return ResponseEntity
-    //             .ok()
-    //             .headers(headers)
-    //             .contentType(MediaType.APPLICATION_PDF)
-    //             .body(new InputStreamResource(bis));
-    // }
-
-    // // ID 7
-    // @GetMapping("/category-pdf/{id}")
-    // public ResponseEntity<InputStreamResource> generateTourByMostFrequentCategoryPdf(@PathVariable String id) throws DocumentException, IOException {
-    //     ByteArrayInputStream bis = pdfService.generateToursByMostFrequentCategoryPdf(Integer.valueOf(id));
-    //     HttpHeaders headers = new HttpHeaders();
-    //     headers.add("Content-Disposition", "inline; filename=cleansed-items.pdf");
-
-    //     return ResponseEntity
-    //             .ok()
-    //             .headers(headers)
-    //             .contentType(MediaType.APPLICATION_PDF)
-    //             .body(new InputStreamResource(bis));
-    // }
-
-    // // ID 7
-    // @GetMapping("/others-category-pdf/{id}")
-    // public ResponseEntity<InputStreamResource> generateToursByOthersPurchasesAndCategoryPdf(@PathVariable String id) throws DocumentException, IOException {
-    //     ByteArrayInputStream bis = pdfService.generateToursByOthersPurchasesAndCategoryPdf(Integer.valueOf(id));
-    //     HttpHeaders headers = new HttpHeaders();
-    //     headers.add("Content-Disposition", "inline; filename=cleansed-items.pdf");
-
-    //     return ResponseEntity
-    //             .ok()
-    //             .headers(headers)
-    //             .contentType(MediaType.APPLICATION_PDF)
-    //             .body(new InputStreamResource(bis));
-    // }
-
-    // @GetMapping("/generate-pdf")
-    // public ResponseEntity<InputStreamResource> generateToursByOthersPurchasesAndCategoryPdf(@RequestParam("requestedById") String requestedById,
-    //                                                                                         @RequestParam("min") Integer minPrice,
-    //                                                                                         @RequestParam("max") Integer maxPrice) throws DocumentException, IOException {
-    //     ByteArrayInputStream bis = pdfService.generatePdf(Integer.valueOf(requestedById), minPrice, maxPrice);
-    //     HttpHeaders headers = new HttpHeaders();
-    //     headers.add("Content-Disposition", "inline; filename=cleansed-items.pdf");
-
-    //     return ResponseEntity
-    //             .ok()
-    //             .headers(headers)
-    //             .contentType(MediaType.APPLICATION_PDF)
-    //             .body(new InputStreamResource(bis));
-    // }
-
+            return new ResponseEntity<>(contents, headers, HttpStatus.OK);
+        } catch (IOException | DocumentException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
