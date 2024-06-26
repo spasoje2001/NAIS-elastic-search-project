@@ -36,6 +36,8 @@ services:
       - KAFKA_HOST=kafka1
       - KAFKA_PORT=9091
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka1:19091
+      - NATS_HOST=nats
+      - NATS_PORT=4222
     # command: [ "--spring.cloud.stream.kafka.binder.brokers=kafka1:19091", "--spring.cloud.stream.bindings.output.destination=elastic-event", "--spring.cloud.stream.kafka.bindings.output.producer.configuration.topic=elastic-event", "--spring.cloud.stream.kafka.bindings.output.producer.configuration.partitions=1" ]
     depends_on:
       - elasticsearch
@@ -77,6 +79,8 @@ services:
       - KAFKA_HOST=kafka2
       - KAFKA_PORT=9092
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka2:19092
+      - NATS_HOST=nats
+      - NATS_PORT=4222
     # command: [ "--spring.cloud.stream.kafka.binder.brokers=kafka2:19092", "--spring.cloud.stream.bindings.output.destination=event-created", "--spring.cloud.stream.kafka.bindings.output.producer.configuration.topic=event-created", "--spring.cloud.stream.kafka.bindings.output.producer.configuration.partitions=1" ]
     depends_on:
       - iis-database
@@ -152,7 +156,13 @@ services:
       - ZK_HOSTS=zoo:2181
     depends_on:
       - zoo
-      
+
+  nats:
+    image: nats
+    container_name: nats
+    ports:
+      - "4222:4222"
+    
 
 volumes:
   elasticsearch-data:

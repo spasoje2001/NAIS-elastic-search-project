@@ -1,13 +1,18 @@
 package com.veljko121.backend.service.impl.events;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.veljko121.backend.core.enums.EventStatus;
 import com.veljko121.backend.core.exception.RoomNotAvailableException;
 import com.veljko121.backend.core.service.impl.CRUDService;
+import com.veljko121.backend.dto.MuseumEventForElasticDTO;
+import com.veljko121.backend.dto.OrganizerForElasticDTO;
 import com.veljko121.backend.model.Organizer;
 import com.veljko121.backend.model.events.MuseumEvent;
 import com.veljko121.backend.repository.RoomRepository;
@@ -16,6 +21,7 @@ import com.veljko121.backend.repository.events.EventRepository;
 import com.veljko121.backend.service.IRoomReservationService;
 import com.veljko121.backend.service.events.IEventService;
 
+import io.nats.client.Connection;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -27,12 +33,15 @@ public class EventService extends CRUDService<MuseumEvent, Integer> implements I
 
     private final IRoomReservationService roomReservationService;
 
-    public EventService(EventRepository repository, RoomRepository roomRepository, IRoomReservationService roomReservationService, EventPictureRepository eventPictureRepository) {
+    private final Connection natsConnection;
+
+    public EventService(EventRepository repository, RoomRepository roomRepository, IRoomReservationService roomReservationService, EventPictureRepository eventPictureRepository, Connection natsConnection) {
         super(repository);
         this.eventRepository = repository;
         this.roomRepository = roomRepository;
         this.roomReservationService = roomReservationService;
         this.eventPictureRepository = eventPictureRepository;
+        this.natsConnection = natsConnection;
     }
 
     @Override
@@ -58,6 +67,15 @@ public class EventService extends CRUDService<MuseumEvent, Integer> implements I
         entity.setStatus(EventStatus.DRAFT);
 
         var savedEntity = super.save(entity);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            var eventForElastic = mapToEventForElastic(entity);
+            String json = objectMapper.writeValueAsString(eventForElastic);
+            natsConnection.publish("museum-events", json.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return savedEntity;
     }
@@ -115,4 +133,24 @@ public class EventService extends CRUDService<MuseumEvent, Integer> implements I
         return super.save(entity);
     }
     
+    private MuseumEventForElasticDTO mapToEventForElastic(MuseumEvent museumEvent) {
+
+        var eventForElastic = new MuseumEventForElasticDTO();
+        
+        eventForElastic.setId(museumEvent.getId().toString());
+        eventForElastic.setName(museumEvent.getName());
+        eventForElastic.setDescription(museumEvent.getDescription());
+
+        var startDateTime = museumEvent.getStartDateTime();
+        Date date = new Date(startDateTime.getYear(), startDateTime.getMonthValue(), startDateTime.getDayOfMonth(), startDateTime.getHour(), startDateTime.getMinute(), startDateTime.getSecond());
+        eventForElastic.setStartDateTime(date);
+
+        eventForElastic.setDurationMinutes(museumEvent.getDurationMinutes());
+        eventForElastic.setPrice(museumEvent.getPrice());
+        eventForElastic.setOrganizer(new OrganizerForElasticDTO(museumEvent.getOrganizer().getFirstName(), museumEvent.getOrganizer().getLastName()));
+
+
+        return eventForElastic;
+    }
+
 }
