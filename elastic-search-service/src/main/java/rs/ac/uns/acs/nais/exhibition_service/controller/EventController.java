@@ -52,7 +52,7 @@ public class EventController {
     }
 
     @GetMapping("/search-by-review-text-and-duration")
-    public List<Event> findEventsByReviewTextAndDuration(
+    public List<MuseumEvent> findEventsByReviewTextAndDuration(
             @RequestParam(name = "searchReviewText") String searchText,
             @RequestParam int minDuration) {
         return eventService.findEventsByReviewTextAndDuration(searchText, minDuration);
