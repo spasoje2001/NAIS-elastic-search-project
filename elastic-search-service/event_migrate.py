@@ -9,6 +9,12 @@ from elasticsearch.helpers import bulk
 fake = Faker()
 es = Elasticsearch(['http://localhost:9200'])
 
+organizers = [
+    {"firstName": "John", "lastName": "Doe"},
+    {"firstName": "Emma", "lastName": "Smith"},
+    {"firstName": "Michael", "lastName": "Johnson"}
+]
+
 adjectives = [
     "Exciting", "Engaging", "Interactive", "Inspiring", "Dynamic", "Vibrant",
     "Lively", "Educational", "Entertaining", "Captivating", "Enlightening",
@@ -215,9 +221,10 @@ def generate_room():
     }
 
 def generate_organizer():
+    organizer = random.choice(organizers)
     return {
-        "firstName": fake.first_name(),
-        "lastName": fake.last_name()
+        "firstName": organizer['firstName'],
+        "lastName": organizer['lastName']
     }
 
 def generate_review():
@@ -295,7 +302,7 @@ def index_events_to_elasticsearch(events):
 if __name__ == "__main__":
     num_events = 1000
     events = generate_events(num_events)
-    #save_to_excel(events, 'events.xlsx')
+    save_to_excel(events, 'events.xlsx')
     index_events_to_elasticsearch(events)
     if es.indices.exists(index="event"):
         print("Index 'event' already exists.")

@@ -1,6 +1,6 @@
 package rs.ac.uns.acs.nais.exhibition_service.controller;
 
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import rs.ac.uns.acs.nais.exhibition_service.dto.ExhibitionRequestDTO;
@@ -16,12 +16,6 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
@@ -60,6 +54,15 @@ public class ExhibitionController {
     @DeleteMapping("{id}")
     public void deleteExhibition(@PathVariable String id) {
         exhibitionService.deleteById(id);
+    }
+
+    @GetMapping("/high-attendance")
+    public List<ExhibitionResponseDTO> findOpenExhibitionsWithHighAttendance(
+            @RequestParam(name = "minTicketsSold", required = true) int minTicketsSold,
+            @RequestParam(name = "minDailyTicketsSold", required = true) int minDailyAverage)
+    {
+        var exhibitions = convertToList(exhibitionService.findOpenExhibitionsWithHighAttendance(minTicketsSold, minDailyAverage));
+        return exhibitions.stream().map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class)).collect(Collectors.toList());
     }
 
     private List<Exhibition> convertToList(Iterable<Exhibition> exhibitions) {

@@ -10,6 +10,20 @@ from elasticsearch.helpers import bulk
 fake = Faker()
 es = Elasticsearch(['http://localhost:9200'])
 
+organizers = [
+    {"firstName": "John", "lastName": "Doe"},
+    {"firstName": "Emma", "lastName": "Smith"},
+    {"firstName": "Michael", "lastName": "Johnson"}
+]
+
+curators = [
+    {"firstName": "Sophia", "lastName": "Brown"},
+    {"firstName": "Daniel", "lastName": "Davis"},
+    {"firstName": "Olivia", "lastName": "Martinez"},
+    {"firstName": "Alexander", "lastName": "Garcia"},
+    {"firstName": "Isabella", "lastName": "Miller"}
+]
+
 exhibition_statuses = [
     "READY_TO_OPEN", "OPEN", "CLOSED", "ARCHIVED"
 ]
@@ -391,15 +405,17 @@ def generate_room():
     }
 
 def generate_organizer():
+    organizer = random.choice(organizers)
     return {
-        "firstName": fake.first_name(),
-        "lastName": fake.last_name()
+        "firstName": organizer['firstName'],
+        "lastName": organizer['lastName']
     }
 
 def generate_curator():
+    curator = random.choice(curators)
     return {
-        "firstName": fake.first_name(),
-        "lastName": fake.last_name()
+        "firstName": curator['firstName'],
+        "lastName": curator['lastName']
     }
 
 def generate_review():
@@ -496,7 +512,7 @@ def index_exhibitions_to_elasticsearch(exhibitions):
 if __name__ == "__main__":
     num_exhibitions = 1000
     exhibitions = generate_exhibitions(num_exhibitions)
-    #save_to_excel(exhibitions, 'exhibitions.xlsx')
+    save_to_excel(exhibitions, 'exhibitions.xlsx')
     index_exhibitions_to_elasticsearch(exhibitions)
     if es.indices.exists(index="exhibition"):
         print("Index 'exhibition' already exists.")
