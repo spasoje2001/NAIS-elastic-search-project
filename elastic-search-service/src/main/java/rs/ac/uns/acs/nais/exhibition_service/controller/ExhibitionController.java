@@ -3,9 +3,11 @@ package rs.ac.uns.acs.nais.exhibition_service.controller;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
+import rs.ac.uns.acs.nais.exhibition_service.dto.EventRequestDTO;
 import rs.ac.uns.acs.nais.exhibition_service.dto.ExhibitionRequestDTO;
 import rs.ac.uns.acs.nais.exhibition_service.dto.ExhibitionResponseDTO;
 import rs.ac.uns.acs.nais.exhibition_service.model.Exhibition;
+import rs.ac.uns.acs.nais.exhibition_service.model.MuseumEvent;
 import rs.ac.uns.acs.nais.exhibition_service.service.IExhibitionService;
 
 import java.util.ArrayList;
@@ -117,6 +119,13 @@ public class ExhibitionController {
             return null; // or return an error message, or handle differently based on your application logic
         }
     }
+
+    @PutMapping("{id}")
+    public void updateExhibition(@PathVariable String id, @RequestBody ExhibitionRequestDTO request) {
+        var exhibition = modelMapper.map(request, Exhibition.class);
+        exhibitionService.update(id, exhibition);
+    }
+
     private List<Exhibition> convertToList(Iterable<Exhibition> exhibitions) {
         List<Exhibition> exhibitionsList = new ArrayList<>();
         exhibitions.forEach(exhibitionsList::add);

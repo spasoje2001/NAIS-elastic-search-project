@@ -64,6 +64,13 @@ public class EventController {
     }
 
 
+    @PutMapping("{id}")
+    public void updateEvent(@PathVariable String id, @RequestBody EventRequestDTO request) {
+        var event = modelMapper.map(request, MuseumEvent.class);
+        eventService.update(id, event);
+    }
+
+
     private List<MuseumEvent> convertToList(Iterable<MuseumEvent> events) {
         List<MuseumEvent> eventsList = new ArrayList<>();
         events.forEach(eventsList::add);

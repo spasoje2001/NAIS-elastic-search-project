@@ -11,16 +11,16 @@ import rs.ac.uns.acs.nais.exhibition_service.events.eventRelationalDatabase.Muse
 @Configuration
 public class EventHandlersConfig {
 
-    @Autowired
-    private MuseumEventStatusUpdateHandler eventStatusUpdateHandler;
+    // @Autowired
+    // private MuseumEventStatusUpdateHandler eventStatusUpdateHandler;
 
-    @Bean
-    public Consumer<MuseumEventRelationalEvent> eventRelationalConsumer() {
-        return pe -> {
-            eventStatusUpdateHandler.updateEvent(pe.getEventResponseDTO().getId(), po -> {
-                po.setRelationalStatus(pe.getStatus());
-            });
-        };
-    }
+    // @Bean
+    // public Consumer<MuseumEventRelationalEvent> eventRelationalConsumer() {
+    //     return pe -> {
+    //         eventStatusUpdateHandler.updateEvent(pe.getEventResponseDTO().getId(), po -> {
+    //             po.setRelationalStatus(pe.getStatus());
+    //         });
+    //     };
+    // }
     
 }

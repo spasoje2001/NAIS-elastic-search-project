@@ -2,9 +2,9 @@ package rs.ac.uns.acs.nais.exhibition_service.model;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Document;
 
 import lombok.Getter;
@@ -25,7 +25,7 @@ public class MuseumEvent {
 
     private String description;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date, format = DateFormat.date_optional_time)
     private LocalDate startDateTime;
 
     private Integer durationMinutes;

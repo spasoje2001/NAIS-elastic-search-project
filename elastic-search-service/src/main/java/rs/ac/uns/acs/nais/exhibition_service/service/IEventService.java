@@ -7,6 +7,9 @@ import rs.ac.uns.acs.nais.exhibition_service.model.MuseumEvent;
 import java.util.List;
 
 public interface IEventService extends ICRUDService<MuseumEvent, String> {
+
     public List<OrganizerAverageRatingDTO> findAverageRatingByOrganizer(double minPrice, String searchText);
+
+    void update(String id, MuseumEvent museumEvent);
 
 }

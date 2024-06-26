@@ -13,14 +13,14 @@ import rs.ac.uns.acs.nais.exhibition_service.events.eventElasticSearchDatabase.M
 @Configuration
 public class SinkFluxConfig {
 
-    @Bean
-    public Sinks.Many<MuseumEventElasticEvent> eventSink(){
-        return Sinks.many().unicast().onBackpressureBuffer();
-    }
+    // @Bean
+    // public Sinks.Many<MuseumEventElasticEvent> eventSink(){
+    //     return Sinks.many().unicast().onBackpressureBuffer();
+    // }
 
-    @Bean
-    public Supplier<Flux<MuseumEventElasticEvent>> eventSupplier(Sinks.Many<MuseumEventElasticEvent> sink){
-        return sink::asFlux;
-    }
+    // @Bean
+    // public Supplier<Flux<MuseumEventElasticEvent>> eventSupplier(Sinks.Many<MuseumEventElasticEvent> sink){
+    //     return sink::asFlux;
+    // }
     
 }

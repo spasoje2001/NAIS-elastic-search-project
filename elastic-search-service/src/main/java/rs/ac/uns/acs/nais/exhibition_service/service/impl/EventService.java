@@ -3,7 +3,7 @@ package rs.ac.uns.acs.nais.exhibition_service.service.impl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import rs.ac.uns.acs.nais.exhibition_service.config.EventStatusPublisher;
+// import rs.ac.uns.acs.nais.exhibition_service.config.EventStatusPublisher;
 import rs.ac.uns.acs.nais.exhibition_service.core.service.impl.CRUDService;
 import rs.ac.uns.acs.nais.exhibition_service.events.eventElasticSearchDatabase.MuseumEventElasticStatus;
 import rs.ac.uns.acs.nais.exhibition_service.model.MuseumEvent;
@@ -21,7 +21,7 @@ import java.util.Map;
 @Service
 public class EventService extends CRUDService<MuseumEvent, String> implements IEventService {
 
-    private EventStatusPublisher eventStatusPublisher;
+    // private EventStatusPublisher eventStatusPublisher;
 
     //public EventService(EventRepository eventRepository) {
         //super(eventRepository);
@@ -37,7 +37,7 @@ public class EventService extends CRUDService<MuseumEvent, String> implements IE
     @Transactional
     public MuseumEvent save(MuseumEvent entity) {
         var event = super.save(entity);
-        eventStatusPublisher.raiseMuseumEventEvent(entity, MuseumEventElasticStatus.CREATED);
+        // eventStatusPublisher.raiseMuseumEventEvent(entity, MuseumEventElasticStatus.CREATED);
         return event;
     }
     
@@ -76,6 +76,21 @@ public class EventService extends CRUDService<MuseumEvent, String> implements IE
         }
 
         return new ArrayList<>(organizerRatingMap.values());
+    }
+
+    @Override
+    public void update(String id, MuseumEvent museumEvent) {
+        var event = findById(id);
+
+        event.setName(museumEvent.getName());
+        event.setDescription(museumEvent.getDescription());
+        event.setDurationMinutes(museumEvent.getDurationMinutes());
+        event.setOrganizer(museumEvent.getOrganizer());
+        event.setRoom(museumEvent.getRoom());
+        event.setStartDateTime(museumEvent.getStartDateTime());
+        event.setPrice(museumEvent.getPrice());
+
+        super.save(event);
     }
 
 }
