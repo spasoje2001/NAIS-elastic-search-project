@@ -302,8 +302,8 @@ def index_events_to_elasticsearch(events):
 if __name__ == "__main__":
     num_events = 1000
     events = generate_events(num_events)
-    save_to_excel(events, 'events.xlsx')
+    #save_to_excel(events, 'events.xlsx')
     index_events_to_elasticsearch(events)
-    if es.indices.exists(index="event"):
-        print("Index 'event' already exists.")
+    #if es.indices.exists(index="event"):
+        #print("Index 'event' already exists.")
 

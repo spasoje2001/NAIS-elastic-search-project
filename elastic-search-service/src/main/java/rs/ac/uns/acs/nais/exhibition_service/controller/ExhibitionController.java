@@ -59,12 +59,64 @@ public class ExhibitionController {
     @GetMapping("/high-attendance")
     public List<ExhibitionResponseDTO> findOpenExhibitionsWithHighAttendance(
             @RequestParam(name = "minTicketsSold", required = true) int minTicketsSold,
-            @RequestParam(name = "minDailyTicketsSold", required = true) int minDailyAverage)
+            @RequestParam(name = "minDailyTicketsSold", required = true) int minDailyAverage,
+            @RequestParam(name = "theme", required = true) String theme)
     {
-        var exhibitions = convertToList(exhibitionService.findOpenExhibitionsWithHighAttendance(minTicketsSold, minDailyAverage));
+        var exhibitions = convertToList(exhibitionService.findOpenExhibitionsWithHighAttendance(minTicketsSold, minDailyAverage, theme));
         return exhibitions.stream().map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class)).collect(Collectors.toList());
     }
 
+    @GetMapping("/searchByDescriptionStartDateTicketsSold")
+    public List<ExhibitionResponseDTO> findByDescriptionAndDateRangeAndMinTicketsSold(
+            @RequestParam(name = "searchText") String searchText,
+            @RequestParam(name = "minStartDate") String minStartDate,
+            @RequestParam(name = "maxStartDate") String maxStartDate,
+            @RequestParam(name = "minTicketsSold") int minTicketsSold) {
+
+        List<Exhibition> exhibitions = exhibitionService.findByDescriptionAndDateRangeAndMinTicketsSold(searchText, minStartDate, maxStartDate, minTicketsSold);
+        return exhibitions.stream()
+                .map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/search-by-review")
+    public List<ExhibitionResponseDTO> findByReviewTextAndCategoryAndMinRating(
+            @RequestParam(name = "reviewText") String reviewText,
+            @RequestParam(name = "theme") String theme,
+            @RequestParam(name = "minAverageRating") double minAverageRating) {
+
+        List<Exhibition> exhibitions = exhibitionService.findByReviewTextAndThemeAndMinAverageRating(reviewText, theme, minAverageRating);
+        return exhibitions.stream()
+                .map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/by-period")
+    public List<ExhibitionResponseDTO> findByPeriodTextAndMinTicketsSoldAndStatus(
+            @RequestParam(name = "periodText") String periodText,
+            @RequestParam(name = "minTicketsSold") int minTicketsSold,
+            @RequestParam(name = "status") String status) {
+
+        List<Exhibition> exhibitions = exhibitionService.findByPeriodTextAndMinTicketsSoldAndStatus(periodText, minTicketsSold, status);
+
+        return exhibitions.stream()
+                .map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/average-ticket-price")
+    public Double averageTicketPriceByCategoryAndDescriptionAndStatus(
+            @RequestParam(name = "itemCategory") String category,
+            @RequestParam(name = "itemDescription") String description,
+            @RequestParam(name = "status") String status) {
+
+        if (description != null && !description.isBlank() && status != null && !status.isBlank()) {
+            return exhibitionService.getAverageTicketPriceByCategoryAndDescriptionAndStatus(category, description, status);
+        } else {
+            // Handle case where either description or status is not provided
+            return null; // or return an error message, or handle differently based on your application logic
+        }
+    }
     private List<Exhibition> convertToList(Iterable<Exhibition> exhibitions) {
         List<Exhibition> exhibitionsList = new ArrayList<>();
         exhibitions.forEach(exhibitionsList::add);
