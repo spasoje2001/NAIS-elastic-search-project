@@ -45,28 +45,17 @@ public class ExhibitionController {
         }
     }
 
-    @PostMapping
-    public void addExhibition(@RequestBody ExhibitionRequestDTO request) {
-        var exhibition = modelMapper.map(request, Exhibition.class);
-        exhibitionService.save(exhibition);
-    }
-
-    @DeleteMapping("{id}")
-    public void deleteExhibition(@PathVariable String id) {
-        exhibitionService.deleteById(id);
-    }
-
     @GetMapping("/high-attendance")
     public List<ExhibitionResponseDTO> findOpenExhibitionsWithHighAttendance(
-            @RequestParam(name = "minTicketsSold", required = true) int minTicketsSold,
-            @RequestParam(name = "minDailyTicketsSold", required = true) int minDailyAverage,
+            @RequestParam(name = "minTicketsSold") int minTicketsSold,
+            @RequestParam(name = "minDailyTicketsSold") int minDailyAverage,
             @RequestParam(name = "theme", required = true) String theme)
     {
         var exhibitions = convertToList(exhibitionService.findOpenExhibitionsWithHighAttendance(minTicketsSold, minDailyAverage, theme));
         return exhibitions.stream().map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class)).collect(Collectors.toList());
     }
 
-    @GetMapping("/searchByDescriptionStartDateTicketsSold")
+    @GetMapping("/search-by-description-startDate-ticketsSold")
     public List<ExhibitionResponseDTO> findByDescriptionAndDateRangeAndMinTicketsSold(
             @RequestParam(name = "searchText") String searchText,
             @RequestParam(name = "minStartDate") String minStartDate,
@@ -79,7 +68,7 @@ public class ExhibitionController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/search-by-review")
+    @GetMapping("/search-by-review-text-theme-min-average-rating")
     public List<ExhibitionResponseDTO> findByReviewTextAndCategoryAndMinRating(
             @RequestParam(name = "reviewText") String reviewText,
             @RequestParam(name = "theme") String theme,
@@ -91,9 +80,9 @@ public class ExhibitionController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/by-period")
+    @GetMapping("/by-period-ticketsSold-status")
     public List<ExhibitionResponseDTO> findByPeriodTextAndMinTicketsSoldAndStatus(
-            @RequestParam(name = "periodText") String periodText,
+            @RequestParam(name = "itemPeriod") String periodText,
             @RequestParam(name = "minTicketsSold") int minTicketsSold,
             @RequestParam(name = "status") String status) {
 
@@ -104,7 +93,7 @@ public class ExhibitionController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/average-ticket-price")
+    @GetMapping("/average-ticket-price-for-item-category")
     public Double averageTicketPriceByCategoryAndDescriptionAndStatus(
             @RequestParam(name = "itemCategory") String category,
             @RequestParam(name = "itemDescription") String description,
@@ -113,10 +102,21 @@ public class ExhibitionController {
         if (description != null && !description.isBlank() && status != null && !status.isBlank()) {
             return exhibitionService.getAverageTicketPriceByCategoryAndDescriptionAndStatus(category, description, status);
         } else {
-            // Handle case where either description or status is not provided
-            return null; // or return an error message, or handle differently based on your application logic
+            return null;
         }
     }
+
+    @PostMapping
+    public void addExhibition(@RequestBody ExhibitionRequestDTO request) {
+        var exhibition = modelMapper.map(request, Exhibition.class);
+        exhibitionService.save(exhibition);
+    }
+
+    @DeleteMapping("{id}")
+    public void deleteExhibition(@PathVariable String id) {
+        exhibitionService.deleteById(id);
+    }
+
     private List<Exhibition> convertToList(Iterable<Exhibition> exhibitions) {
         List<Exhibition> exhibitionsList = new ArrayList<>();
         exhibitions.forEach(exhibitionsList::add);

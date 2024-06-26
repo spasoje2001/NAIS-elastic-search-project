@@ -44,11 +44,18 @@ public class EventController {
         }
     }
 
-    @GetMapping("/average-rating")
+    @GetMapping("/organizer-events-average-rating")
     public List<OrganizerAverageRatingDTO> findAverageRatingByOrganizer(
             @RequestParam double minPrice,
-            @RequestParam(required = false) String searchText) {
+            @RequestParam(required = false, name = "searchReviewText") String searchText) {
         return eventService.findAverageRatingByOrganizer(minPrice, searchText);
+    }
+
+    @GetMapping("/search-by-review-text-and-duration")
+    public List<Event> findEventsByReviewTextAndDuration(
+            @RequestParam(name = "searchReviewText") String searchText,
+            @RequestParam int minDuration) {
+        return eventService.findEventsByReviewTextAndDuration(searchText, minDuration);
     }
 
 

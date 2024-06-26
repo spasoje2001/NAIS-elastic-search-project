@@ -3,10 +3,13 @@ package rs.ac.uns.acs.nais.exhibition_service.service.impl;
 import org.springframework.stereotype.Service;
 
 import rs.ac.uns.acs.nais.exhibition_service.core.service.impl.CRUDService;
+import rs.ac.uns.acs.nais.exhibition_service.model.Event;
 import rs.ac.uns.acs.nais.exhibition_service.model.Exhibition;
 import rs.ac.uns.acs.nais.exhibition_service.repository.ExhibitionRepository;
 import rs.ac.uns.acs.nais.exhibition_service.service.IExhibitionService;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -21,11 +24,8 @@ public class ExhibitionService extends CRUDService<Exhibition, String> implement
     }
 
     public List<Exhibition> findOpenExhibitionsWithHighAttendance(int minTicketsSold, int minDailyAverage, String theme) {
-        //return exhibitionRepository.findOpenExhibitionsWithHighAttendance(minTicketsSold);
 
         List<Exhibition> openExhibitions = exhibitionRepository.findOpenExhibitionsByMinTicketsSold(minTicketsSold, theme);
-
-        // Filter exhibitions based on minDailyAverage
         List<Exhibition> filteredExhibitions = new ArrayList<>();
         LocalDate today = LocalDate.now();
 
@@ -39,16 +39,20 @@ public class ExhibitionService extends CRUDService<Exhibition, String> implement
                 }
             }
         }
+        filteredExhibitions.sort(Comparator.comparingInt(Exhibition::getTicketsSold).reversed());
 
         return filteredExhibitions;
     }
 
     public List<Exhibition> findByDescriptionAndDateRangeAndMinTicketsSold(String searchText, String minStartDate, String maxStartDate, int minTicketsSold) {
-        return exhibitionRepository.findByDescriptionAndDateRangeAndMinTicketsSold(searchText, minStartDate, maxStartDate, minTicketsSold);
+        List<Exhibition> exhibitions =  exhibitionRepository.findByDescriptionAndDateRangeAndMinTicketsSold(searchText, minStartDate, maxStartDate, minTicketsSold);
+        exhibitions.sort(Comparator.comparing(Exhibition::getEndDate));
+
+        return exhibitions;
     }
 
     public List<Exhibition> findByReviewTextAndThemeAndMinAverageRating(String reviewText, String theme, double minAverageRating) {
-        List<Exhibition> exhibitions = exhibitionRepository.findByReviewTextAndTheme(reviewText, theme); // Fetch all exhibitions matching the review and theme criteria
+        List<Exhibition> exhibitions = exhibitionRepository.findByReviewTextAndTheme(reviewText, theme);
 
         List<Exhibition> filteredExhibitions = new ArrayList<>();
 
@@ -66,13 +70,15 @@ public class ExhibitionService extends CRUDService<Exhibition, String> implement
     }
 
     public List<Exhibition> findByPeriodTextAndMinTicketsSoldAndStatus(String periodText, int minTicketsSold, String status) {
-        return exhibitionRepository.findByPeriodTextAndMinTicketsSoldAndStatus(periodText, minTicketsSold, status);
+        List<Exhibition> exhibitions = exhibitionRepository.findByPeriodTextAndMinTicketsSoldAndStatus(periodText, minTicketsSold, status);
+        exhibitions.sort(Comparator.comparingInt(Exhibition::getPrice));
+
+        return exhibitions;
     }
 
     public Double getAverageTicketPriceByCategoryAndDescriptionAndStatus(String category, String description, String status) {
         List<Exhibition> exhibitions = exhibitionRepository.findByCategoryAndItemDescriptionAndStatus(category, description, status);
 
-        // Calculate average ticket price
         double totalExhibitionPrice = 0;
         int count = 0;
         for (Exhibition exhibition : exhibitions) {
@@ -81,9 +87,11 @@ public class ExhibitionService extends CRUDService<Exhibition, String> implement
         }
 
         if (count > 0) {
-            return totalExhibitionPrice / count;
+            double finalAverage = totalExhibitionPrice / count;
+            BigDecimal bd = BigDecimal.valueOf(finalAverage).setScale(2, RoundingMode.HALF_UP);
+            return bd.doubleValue();
         } else {
-            return null; // or handle as needed when no exhibitions match the criteria
+            return null;
         }
     }
 

@@ -12,14 +12,18 @@ import java.util.Map;
 
 @Repository
 public interface EventRepository extends ElasticsearchRepository<Event, String> {
+    //@Query("{\"bool\":{\"filter\":[{\"range\":{\"price\":{\"gte\":?0}}}],\"must\":{\"match\":{\"reviews.text\":\"?1\"}}}}")
+    //List<Event> findEventsByMinPriceAndReviewText(double minPrice, String searchText);
 
-    //@Query("{\"aggs\": {\"organizer_avg_rating\": {\"terms\": {\"field\": \"organizer.firstName.keyword\"}, \"aggs\": {\"avg_rating\": {\"avg\": {\"field\": \"reviews.rating\"}}}}, \"query\": {\"range\": {\"price\": {\"gte\": \"?0\"}}}}")
-    //List<Map<String, Object>> findAverageRatingByOrganizer(double minPrice);
-
-    //@Query("{\"bool\":{\"filter\":[{\"range\":{\"price\":{\"gte\":?0}}}]}}")
-    //List<Event> findEventsByMinPrice(double minPrice);
-
-    @Query("{\"bool\":{\"filter\":[{\"range\":{\"price\":{\"gte\":?0}}}],\"must\":{\"match\":{\"reviews.text\":\"?1\"}}}}")
+    @Query("{\"bool\":{\"filter\":[{\"range\":{\"price\":{\"gte\":?0}}}],\"must\":{\"match\":{\"reviews.text\":{\"query\":\"?1\",\"fuzziness\":\"AUTO\"}}}}}")
     List<Event> findEventsByMinPriceAndReviewText(double minPrice, String searchText);
+
+
+    //@Query("{\"bool\":{\"filter\":[{\"range\":{\"durationMinutes\":{\"gte\":?1}}}],\"must\":{\"match\":{\"reviews.text\":\"?0\"}}}}")
+    //List<Event> findEventsByReviewTextAndDuration(String searchText, int minDuration);
+
+    @Query("{\"bool\":{\"filter\":[{\"range\":{\"durationMinutes\":{\"gte\":?1}}}],\"must\":{\"match\":{\"reviews.text\":{\"query\":\"?0\",\"fuzziness\":\"AUTO\"}}}}}")
+    List<Event> findEventsByReviewTextAndDuration(String searchText, int minDuration);
+
 
 }

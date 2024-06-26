@@ -9,4 +9,7 @@ import java.util.List;
 public interface IEventService extends ICRUDService<Event, String> {
     public List<OrganizerAverageRatingDTO> findAverageRatingByOrganizer(double minPrice, String searchText);
 
+    public List<Event> findEventsByReviewTextAndDuration(String searchText, int minDuration);
+
+
 }

@@ -11,14 +11,12 @@ import java.util.Map;
 
 @Repository
 public interface ExhibitionRepository extends ElasticsearchRepository<Exhibition, String> {
-    //@Query("{\"bool\": {\"must\": [{\"term\": {\"status.keyword\": \"OPEN\"}}, {\"range\": {\"ticketsSold\": {\"gt\": ?0}}} ]}}")
-    //List<Exhibition> findOpenExhibitionsByMinTicketsSold(int minTicketsSold);
 
     @Query("{\"bool\": {" +
             "\"must\": [" +
-            "{\"term\": {\"status.keyword\": \"OPEN\"}}," +  // Dodajemo filtriranje po statusu OPEN
-            "{\"range\": {\"ticketsSold\": {\"gt\": ?0}}}," +  // Filtriranje po minimalnom broju prodatih karata
-            "{\"match\": {\"theme\": \"?1\"}}" +  // Filtriranje po temi
+            "{\"term\": {\"status.keyword\": \"OPEN\"}}," +
+            "{\"range\": {\"ticketsSold\": {\"gt\": ?0}}}," +
+            "{\"match\": {\"theme\": \"?1\"}}" +
             "]" +
             "}}")
     List<Exhibition> findOpenExhibitionsByMinTicketsSold(int minTicketsSold, String theme);
@@ -27,7 +25,7 @@ public interface ExhibitionRepository extends ElasticsearchRepository<Exhibition
     {
       "bool": {
         "must": [
-          { "match": { "longDescription": "?0" } },
+          { "match": { "longDescription": { "query": "?0", "fuzziness": "AUTO" } } },
           { "range": { "startDate": { "gte": "?1", "lte": "?2" } } }
         ],
         "filter": [
@@ -48,7 +46,7 @@ public interface ExhibitionRepository extends ElasticsearchRepository<Exhibition
     {
       "bool": {
         "must": [
-          { "match": { "reviews.text": "?0" } },
+          { "match": { "reviews.text": { "query": "?0", "fuzziness": "AUTO" } } },
           { "term": { "theme.keyword": "?1" } }
         ],
         "filter": [

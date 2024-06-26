@@ -10,17 +10,11 @@ import rs.ac.uns.acs.nais.exhibition_service.service.IEventService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class EventService extends CRUDService<Event, String> implements IEventService {
 
-    //public EventService(EventRepository eventRepository) {
-        //super(eventRepository);
-    //}
     private final EventRepository eventRepository;
 
     public EventService(EventRepository eventRepository) {
@@ -50,10 +44,8 @@ public class EventService extends CRUDService<Event, String> implements IEventSe
             organizerRating.setAverageRating(organizerRating.getAverageRating() + (averageRating * totalReviews));
         }
 
-        // Compute the final average rating
         for (OrganizerAverageRatingDTO ratingDTO : organizerRatingMap.values()) {
             if (ratingDTO.getTotalReviews() > 0) {
-                //ratingDTO.setAverageRating(ratingDTO.getAverageRating() / ratingDTO.getTotalReviews());
                 double finalAverage = ratingDTO.getAverageRating() / ratingDTO.getTotalReviews();
                 BigDecimal bd = BigDecimal.valueOf(finalAverage).setScale(2, RoundingMode.HALF_UP);
                 ratingDTO.setAverageRating(bd.doubleValue());
@@ -64,5 +56,13 @@ public class EventService extends CRUDService<Event, String> implements IEventSe
 
         return new ArrayList<>(organizerRatingMap.values());
     }
+
+    public List<Event> findEventsByReviewTextAndDuration(String searchText, int minDuration) {
+        List<Event> events = eventRepository.findEventsByReviewTextAndDuration(searchText, minDuration);
+        events.sort(Comparator.comparingDouble(Event::getPrice));
+
+        return events;
+    }
+
 
 }
