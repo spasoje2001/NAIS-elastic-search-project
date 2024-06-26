@@ -95,4 +95,22 @@ public class ExhibitionService extends CRUDService<Exhibition, String> implement
         }
     }
 
+    @Override
+    public void update(String id, Exhibition exhibition) {
+        var exhibitionOld = findById(id);
+
+        exhibitionOld.setName(exhibition.getName());
+        exhibitionOld.setShortDescription(exhibition.getShortDescription());
+        exhibitionOld.setLongDescription(exhibition.getLongDescription());
+        exhibitionOld.setStartDate(exhibition.getStartDate());
+        exhibitionOld.setEndDate(exhibition.getEndDate());
+        exhibitionOld.setCurator(exhibition.getCurator());
+        exhibitionOld.setOrganizer(exhibition.getOrganizer());
+        exhibitionOld.setPrice(exhibition.getPrice());
+        exhibitionOld.setTheme(exhibition.getTheme());
+        exhibitionOld.setRoom(exhibition.getRoom());
+
+        super.save(exhibitionOld);
+    }
+
 }

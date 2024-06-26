@@ -17,4 +17,6 @@ public interface IExhibitionService extends ICRUDService<Exhibition, String> {
 
     public Double getAverageTicketPriceByCategoryAndDescriptionAndStatus(String category, String description, String status);
 
+    void update(String id, Exhibition exhibition);
+
 }

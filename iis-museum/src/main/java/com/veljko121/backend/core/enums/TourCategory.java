@@ -1,0 +1,17 @@
+package com.veljko121.backend.core.enums;
+
+public enum TourCategory {
+    ART_COLLECTIONS,
+    HISTORICAL_EXHIBITS,
+    SCIENCE_AND_TECHNOLOGY,
+    CULTURAL_HERITAGE,
+    ANCIENT_ART,
+    EUROPEAN_PAINTINGS,
+    MODERN_ART,
+    AMERICAN_ART,
+    ASIAN_ART,
+    AFRICAN_CULTURE,
+    ISLAMIC_ART,
+    COSTUME_INSTITUTE,
+    ARMS_AND_ARMOR,
+}
