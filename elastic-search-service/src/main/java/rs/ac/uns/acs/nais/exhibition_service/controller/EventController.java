@@ -8,17 +8,12 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import rs.ac.uns.acs.nais.exhibition_service.dto.EventRequestDTO;
 import rs.ac.uns.acs.nais.exhibition_service.dto.EventResponseDTO;
+import rs.ac.uns.acs.nais.exhibition_service.dto.OrganizerAverageRatingDTO;
 import rs.ac.uns.acs.nais.exhibition_service.model.MuseumEvent;
 import rs.ac.uns.acs.nais.exhibition_service.service.IEventService;
 
@@ -49,6 +44,14 @@ public class EventController {
         }
     }
 
+    @GetMapping("/average-rating")
+    public List<OrganizerAverageRatingDTO> findAverageRatingByOrganizer(
+            @RequestParam double minPrice,
+            @RequestParam(required = false) String searchText) {
+        return eventService.findAverageRatingByOrganizer(minPrice, searchText);
+    }
+
+
     @PostMapping
     public void addEvent(@RequestBody EventRequestDTO request) {
         var event = modelMapper.map(request, MuseumEvent.class);
@@ -59,6 +62,7 @@ public class EventController {
     public void deleteEvent(@PathVariable String id) {
         eventService.deleteById(id);
     }
+
 
     private List<MuseumEvent> convertToList(Iterable<MuseumEvent> events) {
         List<MuseumEvent> eventsList = new ArrayList<>();
