@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import rs.ac.uns.acs.nais.exhibition_service.core.service.impl.CRUDService;
 import rs.ac.uns.acs.nais.exhibition_service.events.eventElasticSearchDatabase.MuseumEventElasticStatus;
 import rs.ac.uns.acs.nais.exhibition_service.model.MuseumEvent;
+import rs.ac.uns.acs.nais.exhibition_service.model.Review;
 import rs.ac.uns.acs.nais.exhibition_service.dto.OrganizerAverageRatingDTO;
 import rs.ac.uns.acs.nais.exhibition_service.repository.EventRepository;
 import rs.ac.uns.acs.nais.exhibition_service.service.IEventService;
@@ -30,6 +31,7 @@ public class EventService extends CRUDService<MuseumEvent, String> implements IE
     @Override
     @Transactional
     public MuseumEvent save(MuseumEvent entity) {
+        entity.setReviews(new ArrayList<Review>());
         var event = super.save(entity);
         // eventStatusPublisher.raiseMuseumEventEvent(entity, MuseumEventElasticStatus.CREATED);
         return event;

@@ -64,11 +64,13 @@ public class EventController {
     }
     
     @PostMapping
-    @PreAuthorize("hasRole('ORGANIZER')")
+    // @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> create(@RequestBody EventRequestDTO requestDTO) {
+        System.out.println("IISSSSSS CUVANJE " + requestDTO);
         var event = mapRequestToEvent(requestDTO);
-        eventService.save(event);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        var saved = eventService.save(event);
+        System.out.println("IISSSSSS SACUVANO " + saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
     
     @PutMapping
@@ -111,7 +113,7 @@ public class EventController {
     }
     
     @DeleteMapping(path = "{id}")
-    @PreAuthorize("hasRole('ORGANIZER')")
+    // @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<?> deleteEvent(@PathVariable Integer id) {
         if (!loggedInOrganizerCreatedEvent(id)) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         eventService.deleteById(id);
@@ -199,7 +201,7 @@ public class EventController {
 
     private MuseumEvent mapRequestToEvent(EventRequestDTO requestDTO) {
         var event = modelMapper.map(requestDTO, MuseumEvent.class);
-        event.setOrganizer(getLoggedInOrganizer());
+        event.setOrganizer(organizerService.findById(6));
 
         Collection<EventPicture> eventPictures = new ArrayList<>();
         for (var picturePath : requestDTO.getPicturePaths()) {

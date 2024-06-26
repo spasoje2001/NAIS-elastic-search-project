@@ -60,9 +60,12 @@ public class EventController {
 
 
     @PostMapping
-    public void addEvent(@RequestBody EventRequestDTO request) {
+    public ResponseEntity<?> addEvent(@RequestBody EventRequestDTO request) {
         var event = modelMapper.map(request, MuseumEvent.class);
-        eventService.save(event);
+        System.out.println("ELASTICOOOO CUVANJEEEEEE " + event);
+        var saved = eventService.save(event);
+        System.out.println("ELASTICOOOO SACUVANOOOOO " + saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @DeleteMapping("{id}")
