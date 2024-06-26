@@ -6,12 +6,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.veljko121.backend.core.enums.EventStatus;
 import com.veljko121.backend.model.Organizer;
-import com.veljko121.backend.model.events.Event;
+import com.veljko121.backend.model.events.MuseumEvent;
 
-public interface EventRepository extends JpaRepository<Event, Integer> { 
+public interface EventRepository extends JpaRepository<MuseumEvent, Integer> { 
 
-    List<Event> findByStatus(EventStatus status);
+    List<MuseumEvent> findByStatus(EventStatus status);
 
-    List<Event> findByOrganizer(Organizer organizer);
+    List<MuseumEvent> findByOrganizer(Organizer organizer);
 
  }

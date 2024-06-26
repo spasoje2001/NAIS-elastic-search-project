@@ -19,4 +19,8 @@ public class ExhibitionProposalDTO {
     private Integer organizerId;
     @NotNull(message = "Curator ID is required.")
     private Integer curatorId;
+    
+    private String name;
+    private String shortDescription;
+    private String longDescription;
 }

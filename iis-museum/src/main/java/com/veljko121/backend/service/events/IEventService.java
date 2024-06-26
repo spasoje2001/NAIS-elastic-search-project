@@ -4,18 +4,18 @@ import java.util.Collection;
 
 import com.veljko121.backend.core.service.ICRUDService;
 import com.veljko121.backend.model.Organizer;
-import com.veljko121.backend.model.events.Event;
+import com.veljko121.backend.model.events.MuseumEvent;
 
-public interface IEventService extends ICRUDService<Event, Integer> {
+public interface IEventService extends ICRUDService<MuseumEvent, Integer> {
 
     void publish(Integer id);
 
     void archive(Integer id);
     
-    Collection<Event> findPublished();
+    Collection<MuseumEvent> findPublished();
 
-    Collection<Event> findByOrganizer(Organizer organizer);
+    Collection<MuseumEvent> findByOrganizer(Organizer organizer);
 
-    Event update(Event entity);
+    MuseumEvent update(MuseumEvent entity);
     
 }

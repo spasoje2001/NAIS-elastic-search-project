@@ -7,6 +7,8 @@ import com.veljko121.backend.model.Exhibition;
 import com.veljko121.backend.service.IExhibitionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,11 +43,12 @@ public class ExhibitionController {
     }
 
     @PostMapping("/propose")
-    public ResponseEntity<?> proposeExhibition(@RequestBody @Valid ExhibitionProposalDTO proposalDTO) {
+    public ResponseEntity<?> proposeExhibition(@RequestBody @Valid Mono<ExhibitionProposalDTO> mono) {
         try {
-            Exhibition createdExhibition = exhibitionService.proposeExhibition(proposalDTO);
-            ExhibitionResponseDTO exhibitionDTO = exhibitionMapper.mapToDTO(createdExhibition);
-            return new ResponseEntity<>(exhibitionDTO, HttpStatus.CREATED);
+            var response = mono.flatMap(exhibitionService::createExhibition);
+            // Exhibition createdExhibition = exhibitionService.proposeExhibition(mono);
+            // ExhibitionResponseDTO exhibitionDTO = exhibitionMapper.mapToDTO(createdExhibition);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             // In a real-world application, you might want to log this exception and return a user-friendly message
             return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.BAD_REQUEST);

@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import com.veljko121.backend.dto.events.EventPictureResponseDTO;
 import com.veljko121.backend.dto.events.EventRequestDTO;
 import com.veljko121.backend.dto.events.EventUpdateRequestDTO;
-import com.veljko121.backend.model.events.Event;
+import com.veljko121.backend.model.events.MuseumEvent;
 import com.veljko121.backend.model.events.EventPicture;
 
 @Configuration
@@ -51,14 +51,14 @@ public class ModelMapperConfig {
         };
         modelMapper.addConverter(picturePathStringsToEventPicture);
         modelMapper.addConverter(eventPictureToPicturePathString);
-        modelMapper.typeMap(EventRequestDTO.class, Event.class).addMapping(src -> src.getRoomId(), (dest, value) -> dest.getRoomReservation().getRoom().setId((Integer)value));
-        modelMapper.typeMap(EventRequestDTO.class, Event.class).addMappings(new PropertyMap<EventRequestDTO, Event>() {
+        modelMapper.typeMap(EventRequestDTO.class, MuseumEvent.class).addMapping(src -> src.getRoomId(), (dest, value) -> dest.getRoomReservation().getRoom().setId((Integer)value));
+        modelMapper.typeMap(EventRequestDTO.class, MuseumEvent.class).addMappings(new PropertyMap<EventRequestDTO, MuseumEvent>() {
             @Override
             protected void configure() {
                 skip(destination.getId());
             }
         });
-        modelMapper.typeMap(EventUpdateRequestDTO.class, Event.class).addMapping(src -> src.getRoomId(), (dest, value) -> dest.getRoomReservation().getRoom().setId((Integer)value));
+        modelMapper.typeMap(EventUpdateRequestDTO.class, MuseumEvent.class).addMapping(src -> src.getRoomId(), (dest, value) -> dest.getRoomReservation().getRoom().setId((Integer)value));
 
         return modelMapper;
     }

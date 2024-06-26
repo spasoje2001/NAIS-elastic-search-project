@@ -3,7 +3,7 @@ package rs.uns.ac.rs.nais.orchestrator.service.steps;
 import reactor.core.publisher.Mono;
 import rs.uns.ac.rs.nais.orchestrator.dto.ExhibitionRequestDTO;
 import rs.uns.ac.rs.nais.orchestrator.dto.ExhibitionResponseDTO;
-import rs.uns.ac.rs.nais.orchestrator.enums.ExhibitionStatus;
+import rs.uns.ac.rs.nais.orchestrator.enums.EventSAGAStatus;
 import rs.uns.ac.rs.nais.orchestrator.service.WorkflowStep;
 import rs.uns.ac.rs.nais.orchestrator.service.WorkflowStepStatus;
 
@@ -35,7 +35,7 @@ public class CreationStep implements WorkflowStep {
             .body(BodyInserters.fromValue(this.requestDTO))
             .retrieve()
             .bodyToMono(ExhibitionResponseDTO.class)
-            .map(r -> r.getStatus().equals(ExhibitionStatus.COMPLETED))
+            .map(r -> r.getStatus().equals(EventSAGAStatus.COMPLETED))
             .doOnNext(b -> this.stepStatus = b ? WorkflowStepStatus.COMPLETE : WorkflowStepStatus.FAILED);
     }
 
@@ -47,7 +47,7 @@ public class CreationStep implements WorkflowStep {
             .body(BodyInserters.fromValue(this.requestDTO))
             .retrieve()
             .bodyToMono(ExhibitionResponseDTO.class)
-            .map(r -> r.getStatus().equals(ExhibitionStatus.COMPLETED))
+            .map(r -> r.getStatus().equals(EventSAGAStatus.COMPLETED))
             .doOnNext(b -> this.stepStatus = b ? WorkflowStepStatus.COMPLETE : WorkflowStepStatus.FAILED);
     }
     

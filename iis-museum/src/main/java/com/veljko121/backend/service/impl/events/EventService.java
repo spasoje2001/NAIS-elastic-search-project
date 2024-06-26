@@ -9,15 +9,17 @@ import com.veljko121.backend.core.enums.EventStatus;
 import com.veljko121.backend.core.exception.RoomNotAvailableException;
 import com.veljko121.backend.core.service.impl.CRUDService;
 import com.veljko121.backend.model.Organizer;
-import com.veljko121.backend.model.events.Event;
+import com.veljko121.backend.model.events.MuseumEvent;
 import com.veljko121.backend.repository.RoomRepository;
 import com.veljko121.backend.repository.events.EventPictureRepository;
 import com.veljko121.backend.repository.events.EventRepository;
 import com.veljko121.backend.service.IRoomReservationService;
 import com.veljko121.backend.service.events.IEventService;
 
+import jakarta.transaction.Transactional;
+
 @Service
-public class EventService extends CRUDService<Event, Integer> implements IEventService {
+public class EventService extends CRUDService<MuseumEvent, Integer> implements IEventService {
 
     private final EventRepository eventRepository;
     private final RoomRepository roomRepository;
@@ -34,7 +36,8 @@ public class EventService extends CRUDService<Event, Integer> implements IEventS
     }
 
     @Override
-    public Event save(Event entity) throws RoomNotAvailableException {
+    @Transactional
+    public MuseumEvent save(MuseumEvent entity) throws RoomNotAvailableException {
         var room = roomRepository.findById(entity.getRoomReservation().getRoom().getId()).orElseThrow();
         var roomReservation = entity.getRoomReservation();
         
@@ -54,7 +57,9 @@ public class EventService extends CRUDService<Event, Integer> implements IEventS
         entity.setRoomReservation(roomReservation);
         entity.setStatus(EventStatus.DRAFT);
 
-        return super.save(entity);
+        var savedEntity = super.save(entity);
+
+        return savedEntity;
     }
 
     @Override
@@ -65,12 +70,12 @@ public class EventService extends CRUDService<Event, Integer> implements IEventS
     }
 
     @Override
-    public Collection<Event> findPublished() {
+    public Collection<MuseumEvent> findPublished() {
         return eventRepository.findByStatus(EventStatus.PUBLISHED);
     }
 
     @Override
-    public Collection<Event> findByOrganizer(Organizer organier) {
+    public Collection<MuseumEvent> findByOrganizer(Organizer organier) {
         return eventRepository.findByOrganizer(organier);
     }
 
@@ -82,7 +87,7 @@ public class EventService extends CRUDService<Event, Integer> implements IEventS
     }
 
     @Override
-    public Event update(Event entity) {
+    public MuseumEvent update(MuseumEvent entity) {
         var oldEvent = eventRepository.findById(entity.getId()).orElseThrow();
         var room = roomRepository.findById(entity.getRoomReservation().getRoom().getId()).orElseThrow();
         var roomReservation = oldEvent.getRoomReservation();

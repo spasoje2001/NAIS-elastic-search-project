@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import rs.uns.ac.rs.nais.orchestrator.dto.ExhibitionRequestDTO;
 import rs.uns.ac.rs.nais.orchestrator.dto.ExhibitionResponseDTO;
-import rs.uns.ac.rs.nais.orchestrator.enums.ExhibitionStatus;
+import rs.uns.ac.rs.nais.orchestrator.enums.EventSAGAStatus;
 import rs.uns.ac.rs.nais.orchestrator.service.steps.CreationStep;
 
 @Service
@@ -35,7 +35,7 @@ public class OrchestratorService {
                 else
                     synchronousSink.error(new WorkflowException("create exhibition failed!"));
             }))
-            .then(Mono.fromCallable(() -> getResponseDTO(requestDTO, ExhibitionStatus.COMPLETED)))
+            .then(Mono.fromCallable(() -> getResponseDTO(requestDTO, EventSAGAStatus.COMPLETED)))
             .onErrorResume(ex -> this.revertOrder(exhibitionWorkflow, requestDTO));
     }
 
@@ -44,7 +44,7 @@ public class OrchestratorService {
                 .filter(wf -> wf.getStatus().equals(WorkflowStepStatus.COMPLETE))
                 .flatMap(WorkflowStep::revert)
                 .retry(3)
-                .then(Mono.just(this.getResponseDTO(requestDTO, ExhibitionStatus.CANCELLED)));
+                .then(Mono.just(this.getResponseDTO(requestDTO, EventSAGAStatus.CANCELLED)));
     }
 
     private Workflow getExhibitionWorkflow(ExhibitionRequestDTO requestDTO) {
@@ -52,7 +52,7 @@ public class OrchestratorService {
         return new ExhibitionWorkflow(List.of(creationStep));
     }
 
-    private ExhibitionResponseDTO getResponseDTO(ExhibitionRequestDTO requestDTO, ExhibitionStatus status) {
+    private ExhibitionResponseDTO getResponseDTO(ExhibitionRequestDTO requestDTO, EventSAGAStatus status) {
         var dto = modelMapper.map(requestDTO, ExhibitionResponseDTO.class);
         dto.setStatus(status);
         return dto;

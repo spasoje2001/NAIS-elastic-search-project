@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.veljko121.backend.core.service.impl.CRUDService;
 import com.veljko121.backend.model.Room;
 import com.veljko121.backend.model.RoomReservation;
-import com.veljko121.backend.model.events.Event;
+import com.veljko121.backend.model.events.MuseumEvent;
 import com.veljko121.backend.repository.RoomRepository;
 import com.veljko121.backend.repository.RoomReservationRepository;
 import com.veljko121.backend.service.IRoomReservationService;
@@ -61,7 +61,7 @@ public class RoomReservationService extends CRUDService<RoomReservation, Integer
     }
 
     @Override
-    public Collection<Room> findAvailableRoomsForUpdating(Event event, LocalDateTime startDateTime, Integer durationMinutes) {
+    public Collection<Room> findAvailableRoomsForUpdating(MuseumEvent event, LocalDateTime startDateTime, Integer durationMinutes) {
         var availableRooms = new ArrayList<Room>();
         for (var room : roomRepository.findAll()) {
             if (isRoomAvailableForUpdating(room, startDateTime, durationMinutes, event.getRoomReservation())) availableRooms.add(room);

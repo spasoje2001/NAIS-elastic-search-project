@@ -10,6 +10,8 @@ import com.veljko121.backend.repository.ExhibitionRepository;
 import com.veljko121.backend.service.*;
 import com.veljko121.backend.util.DateUtil;
 import jakarta.transaction.Transactional;
+import reactor.core.publisher.Mono;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,9 +57,12 @@ public class ExhibitionService extends CRUDService<Exhibition, Integer> implemen
         exhibition.setStartDate(startDate);
         exhibition.setEndDate(endDate);
         exhibition.setPrice(proposalDTO.getPrice());
-        exhibition.setStatus(ExhibitionStatus.PROPOSED); // Postavljate status na PROPOSED
+        exhibition.setStatus(ExhibitionStatus.OPEN); // Postavljate status na PROPOSED
         exhibition.setOrganizer(organizerService.findById(proposalDTO.getOrganizerId()));
         exhibition.setCurator(curatorService.findById(proposalDTO.getCuratorId()));
+        exhibition.setName(proposalDTO.getName());
+        exhibition.setShortDescription(proposalDTO.getShortDescription());
+        exhibition.setLongDescription(proposalDTO.getLongDescription());
 
         RoomReservation roomReservation = new RoomReservation();
         roomReservation.setRoom(roomService.findById(proposalDTO.getRoomId()));
@@ -73,6 +78,10 @@ public class ExhibitionService extends CRUDService<Exhibition, Integer> implemen
         savedExhibition.setName("Exhibition Proposal: " + savedExhibition.getId());
 
         return exhibitionRepository.save(savedExhibition);
+    }
+
+    public Mono<Exhibition> createExhibition(ExhibitionProposalDTO proposalDTO) {
+        return Mono.fromCallable(() -> proposeExhibition(proposalDTO));
     }
 
     @Override

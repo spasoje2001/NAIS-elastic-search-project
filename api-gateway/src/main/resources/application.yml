@@ -16,10 +16,6 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
-        # - id: elasticsearch-service
-        #   uri: http://${ELASTICSEARCH_SERVICE_HOST:localhost}:${ELASTICSEARCH_SERVICE_PORT:8080}
-        #   predicates:
-        #     - Path=/**
         - id: iis-museum
           uri: http://${IIS_MUSEUM_HOST:localhost}:${IIS_MUSEUM_PORT:8081}
           predicates:

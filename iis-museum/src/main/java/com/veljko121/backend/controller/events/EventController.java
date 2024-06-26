@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.service.annotation.DeleteExchange;
 
 import com.veljko121.backend.core.enums.EventInvitationStatus;
 import com.veljko121.backend.core.service.IJwtService;
@@ -28,7 +27,7 @@ import com.veljko121.backend.dto.events.EventResponseDTO;
 import com.veljko121.backend.dto.events.EventUpdateRequestDTO;
 import com.veljko121.backend.model.Curator;
 import com.veljko121.backend.model.Organizer;
-import com.veljko121.backend.model.events.Event;
+import com.veljko121.backend.model.events.MuseumEvent;
 import com.veljko121.backend.model.events.EventPicture;
 import com.veljko121.backend.service.ICuratorService;
 import com.veljko121.backend.service.IOrganizerService;
@@ -198,8 +197,8 @@ public class EventController {
         return curatorService.findById(jwtService.getLoggedInUserId());
     }
 
-    private Event mapRequestToEvent(EventRequestDTO requestDTO) {
-        var event = modelMapper.map(requestDTO, Event.class);
+    private MuseumEvent mapRequestToEvent(EventRequestDTO requestDTO) {
+        var event = modelMapper.map(requestDTO, MuseumEvent.class);
         event.setOrganizer(getLoggedInOrganizer());
 
         Collection<EventPicture> eventPictures = new ArrayList<>();
@@ -212,7 +211,7 @@ public class EventController {
         return event;
     }
 
-    private Event mapUpdateRequestToEvent(EventUpdateRequestDTO updateRequestDTO) {
+    private MuseumEvent mapUpdateRequestToEvent(EventUpdateRequestDTO updateRequestDTO) {
         var event = mapRequestToEvent(new EventRequestDTO(updateRequestDTO));
         event.setId(updateRequestDTO.getId());
         event.setOrganizer(getLoggedInOrganizer());

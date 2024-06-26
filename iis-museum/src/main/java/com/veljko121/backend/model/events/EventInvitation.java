@@ -26,7 +26,7 @@ public class EventInvitation {
     private Integer id;
 
     @ManyToOne
-    private Event event;
+    private MuseumEvent event;
 
     @ManyToOne
     private Curator curator;

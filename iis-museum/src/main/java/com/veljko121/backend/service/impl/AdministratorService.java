@@ -1,6 +1,5 @@
 package com.veljko121.backend.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.veljko121.backend.core.exception.EmailNotUniqueException;
@@ -17,7 +16,6 @@ public class AdministratorService extends CRUDService<Administrator, Integer> im
 
     private final AdministartorRepository administratorRepository;
 
-    @Autowired
     public AdministratorService(AdministartorRepository repository, AdministartorRepository administratorRepository, IUserService userService) {
         super(repository);
         this.administratorRepository = administratorRepository;

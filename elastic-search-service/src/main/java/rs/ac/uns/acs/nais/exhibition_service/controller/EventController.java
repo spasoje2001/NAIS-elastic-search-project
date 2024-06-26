@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import rs.ac.uns.acs.nais.exhibition_service.dto.EventRequestDTO;
 import rs.ac.uns.acs.nais.exhibition_service.dto.EventResponseDTO;
-import rs.ac.uns.acs.nais.exhibition_service.model.Event;
+import rs.ac.uns.acs.nais.exhibition_service.model.MuseumEvent;
 import rs.ac.uns.acs.nais.exhibition_service.service.IEventService;
 
 @RestController
@@ -51,7 +51,7 @@ public class EventController {
 
     @PostMapping
     public void addEvent(@RequestBody EventRequestDTO request) {
-        var event = modelMapper.map(request, Event.class);
+        var event = modelMapper.map(request, MuseumEvent.class);
         eventService.save(event);
     }
 
@@ -60,8 +60,8 @@ public class EventController {
         eventService.deleteById(id);
     }
 
-    private List<Event> convertToList(Iterable<Event> events) {
-        List<Event> eventsList = new ArrayList<>();
+    private List<MuseumEvent> convertToList(Iterable<MuseumEvent> events) {
+        List<MuseumEvent> eventsList = new ArrayList<>();
         events.forEach(eventsList::add);
         return eventsList;
     }
