@@ -1,6 +1,7 @@
 package rs.ac.uns.acs.nais.exhibition_service.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.data.annotation.Id;
@@ -48,6 +49,13 @@ public class MuseumEvent {
         }
         averageRating /= reviews.size();
         return averageRating;
+    }
+
+    public Collection<Review> getReviews() {
+        if (reviews == null) {
+            return new ArrayList<Review>();
+        }
+        else return reviews;
     }
 
 }
