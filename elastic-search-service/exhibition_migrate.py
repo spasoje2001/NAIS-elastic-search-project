@@ -3,13 +3,28 @@ from faker import Faker
 import string
 from openpyxl import Workbook
 from datetime import datetime, timedelta
+from elasticsearch import Elasticsearch
+from elasticsearch.helpers import bulk
 
-#inicijalizacija fakera
+
 fake = Faker()
+es = Elasticsearch(['http://localhost:9200'])
 
-#enumi
+organizers = [
+    {"firstName": "John", "lastName": "Doe"},
+    {"firstName": "Emma", "lastName": "Smith"},
+    {"firstName": "Michael", "lastName": "Johnson"}
+]
+
+curators = [
+    {"firstName": "Sophia", "lastName": "Brown"},
+    {"firstName": "Daniel", "lastName": "Davis"},
+    {"firstName": "Olivia", "lastName": "Martinez"},
+    {"firstName": "Alexander", "lastName": "Garcia"},
+    {"firstName": "Isabella", "lastName": "Miller"}
+]
+
 exhibition_statuses = [
-    "PROPOSED", "CURATING", "AWAITING_APPROVAL",
     "READY_TO_OPEN", "OPEN", "CLOSED", "ARCHIVED"
 ]
 exhibition_themes = [
@@ -22,10 +37,78 @@ exhibition_themes = [
     "MILITARY_HISTORY", "ENVIRONMENTAL_SCIENCE", "CHILDREN_EDUCATION",
     "SEASONAL"
 ]
-item_categories = [
-    "PAINTING", "DRAWING", "SCULPTURE", "PRINT",
-    "PHOTOGRAPH", "ARTIFACT", "CLOTHING", "SPECIMEN",
-    "FOSSIL", "ANIMAL", "MINERAL", "POTTERY", "JEWELRY"
+
+#item_categories = [
+#    "PAINTING", "DRAWING", "SCULPTURE", "PRINT",
+#    "PHOTOGRAPH", "ARTIFACT", "CLOTHING", "SPECIMEN",
+#    "FOSSIL", "ANIMAL", "MINERAL", "POTTERY", "JEWELRY"
+#]
+
+item_categories = {
+    "ANCIENT_HISTORY": ["ARTIFACT", "SCULPTURE", "SPECIMEN", "FOSSIL", "POTTERY", "JEWELRY"],
+    "MEDIEVAL_HISTORY": ["ARTIFACT", "SCULPTURE", "CLOTHING", "POTTERY", "JEWELRY"],
+    "MODERN_HISTORY": ["ARTIFACT", "CLOTHING", "POTTERY", "JEWELRY"],
+    "FINE_ARTS": ["PAINTING", "DRAWING", "SCULPTURE", "PRINT", "PHOTOGRAPH"],
+    "CONTEMPORARY_ART": ["PAINTING", "DRAWING", "SCULPTURE", "PRINT", "PHOTOGRAPH"],
+    "PHOTOGRAPHY": ["PHOTOGRAPH", "PRINT", "ARTIFACT"],
+    "SCULPTURE": ["SCULPTURE", "PHOTOGRAPH", "ARTIFACT"],
+    "SCIENCE_AND_TECHNOLOGY": ["SPECIMEN", "FOSSIL", "MINERAL", "ARTIFACT", "PHOTOGRAPH", "PRINT"],
+    "NATURAL_HISTORY": ["SPECIMEN", "FOSSIL", "ANIMAL", "MINERAL", "ARTIFACT", "PHOTOGRAPH", "PRINT"],
+    "MARITIME": ["SPECIMEN", "FOSSIL", "ANIMAL", "ARTIFACT"],
+    "AVIATION": ["ARTIFACT", "PHOTOGRAPH", "PRINT", "CLOTHING"],
+    "SPACE_EXPLORATION": ["ARTIFACT", "PHOTOGRAPH", "PRINT", "CLOTHING"],
+    "WORLD_CULTURES": ["ARTIFACT", "CLOTHING", "POTTERY", "JEWELRY", "PHOTOGRAPH"],
+    "INDIGENOUS_CULTURES": ["ARTIFACT", "CLOTHING", "POTTERY", "JEWELRY"],
+    "MUSIC_HISTORY": ["ARTIFACT", "PHOTOGRAPH", "PRINT"],
+    "LITERARY_ARTS": ["ARTIFACT", "PRINT"],
+    "FASHION_AND_DESIGN": ["CLOTHING", "JEWELRY", "PHOTOGRAPH", "PRINT"],
+    "FILM_AND_MEDIA": ["ARTIFACT", "CLOTHING", "JEWELRY", "PRINT", "PHOTOGRAPH"],
+    "ARCHAEOLOGY": ["ARTIFACT", "POTTERY", "JEWELRY"],
+    "MILITARY_HISTORY": ["ARTIFACT", "CLOTHING", "JEWELRY", "PHOTOGRAPH", "PRINT"],
+    "ENVIRONMENTAL_SCIENCE": ["SPECIMEN", "FOSSIL", "ANIMAL", "MINERAL", "ARTIFACT"],
+    "CHILDREN_EDUCATION": ["ARTIFACT", "CLOTHING", "PHOTOGRAPH", "DRAWING", "ANIMAL", "PRINT"],
+    "SEASONAL": ["ARTIFACT", "CLOTHING", "JEWELRY"]
+}
+
+#periods = [
+#    "Ancient", "Medieval", "Renaissance", "Baroque", "Modern", "Contemporary",
+#    "19th Century", "20th Century", "21st Century"
+#]
+
+periods = {
+    "ANCIENT_HISTORY": ["Ancient"],
+    "MEDIEVAL_HISTORY": ["Medieval"],
+    "MODERN_HISTORY": ["Baroque", "19th Century", "20th Century", "21st Century"],
+    "FINE_ARTS": ["Renaissance", "Baroque", "19th Century", "20th Century", "21st Century"],
+    "CONTEMPORARY_ART": ["21st Century"],
+    "PHOTOGRAPHY": ["19th Century", "20th Century", "21st Century"],
+    "SCULPTURE": ["Ancient", "Renaissance", "Modern", "Contemporary"],
+    "SCIENCE_AND_TECHNOLOGY": ["19th Century", "20th Century", "21st Century"],
+    "NATURAL_HISTORY": ["Ancient", "19th Century", "20th Century", "21st Century"],
+    "MARITIME": ["Ancient", "19th Century", "20th Century", "21st Century"],
+    "AVIATION": ["20th Century", "21st Century"],
+    "SPACE_EXPLORATION": ["20th Century", "21st Century"],
+    "WORLD_CULTURES": ["Ancient", "Medieval", "Modern", "19th Century", "20th Century", "21st Century"],
+    "INDIGENOUS_CULTURES": ["Ancient", "Medieval",  "Modern", "Contemporary"],
+    "MUSIC_HISTORY": ["Renaissance", "Baroque", "19th Century", "20th Century", "21st Century"],
+    "LITERARY_ARTS": ["Renaissance", "Baroque", "19th Century", "20th Century", "21st Century"],
+    "FASHION_AND_DESIGN": ["19th Century", "20th Century", "21st Century"],
+    "FILM_AND_MEDIA": ["20th Century", "21st Century"],
+    "ARCHAEOLOGY": ["Ancient", "Medieval"],
+    "MILITARY_HISTORY": ["19th Century", "20th Century", "21st Century"],
+    "ENVIRONMENTAL_SCIENCE": ["20th Century", "21st Century"],
+    "CHILDREN_EDUCATION": ["19th Century", "20th Century", "21st Century"],
+    "SEASONAL": ["Ancient", "Medieval", "Modern", "19th Century", "20th Century", "21st Century"],
+}
+
+item_description_templates = [
+    "This {category} from the {period} period is a remarkable example of its kind, showcasing the typical characteristics and craftsmanship of that era.",
+    "A fine piece of {category} originating from the {period} period, this item exemplifies the artistic style of its time.",
+    "From the {period} period, this {category} stands out for its unique features and historical significance.",
+    "An exquisite {category} crafted during the {period} period, representing the culture and techniques of the era.",
+    "This {category} is a splendid example from the {period} period, known for its distinctive artistic and cultural value.",
+    "Originating in the {period} period, this {category} provides insight into the aesthetics and craftsmanship of that time.",
+    "A notable {category} from the {period} period, this item is a testament to the skills and artistic vision of its creator."
 ]
 
 adjectives = [
@@ -64,7 +147,6 @@ additional_descriptive_phrases = [
     "celebrates the wonder of human ingenuity and artistic expression."
 ]
 
-# Long description components
 long_description_introductions = [
     "Step into the world of", "Discover the fascinating journey of", "Explore the rich history and culture of",
     "Embark on a captivating exploration of", "Immerse yourself in the stories and artifacts of",
@@ -177,32 +259,37 @@ negative_review_endings = [
 ]
 
 def generate_exhibition():
-    start_date = fake.date_between(start_date='-1y', end_date='today')
-    end_date = fake.date_between(start_date=start_date, end_date='+1y') if random.choice([True, False]) else None
-    price = random.randint(0, 50)
-    tickets_sold = random.randint(0, 1000)
+    start_date = fake.date_between(start_date='-5y', end_date='+1y')
+    end_date = fake.date_between(start_date=start_date, end_date=start_date + timedelta(days=365))
+    price = random.randint(0, 25)
 
     exhibition_id = generate_random_id()
     exhibition_name = generate_exhibition_name()
+    exhibition_theme = random.choice(exhibition_themes)
+    exhibition_status = determine_exhibition_status(start_date, end_date)
+    tickets_sold = calculate_tickets_sold(exhibition_status, start_date, end_date)
     items_count = random.randint(1, 5)
-    items = [generate_item() for _ in range(items_count)]
+    items = [generate_item(exhibition_theme) for _ in range(items_count)]
+    reviews = []
+    if exhibition_status != "READY_TO_OPEN":
+        reviews = [generate_review() for _ in range(random.randint(1, 10))]
 
     exhibition = {
         "id": exhibition_id,
         "name": exhibition_name,
         "shortDescription": generate_short_description(exhibition_name),
         "longDescription": generate_long_description(exhibition_name, items),
-        "theme": random.choice(exhibition_themes),
-        "status": random.choice(exhibition_statuses),
+        "theme": exhibition_theme,
+        "status": exhibition_status,
         "startDate": start_date.isoformat(),
-        "endDate": end_date.isoformat() if end_date else None,
+        "endDate": end_date.isoformat(),
         "price": price,
         "ticketsSold": tickets_sold,
         "organizer": generate_organizer(),
         "curator": generate_curator(),
         "room": generate_room(),
         "items": items,
-        "reviews": [generate_review() for _ in range(random.randint(1, 10))]
+        "reviews": reviews
     }
 
     return exhibition
@@ -217,9 +304,20 @@ def generate_exhibition_name():
         name += " " + random.choice(phrases)
     return name
 
+def calculate_tickets_sold(status, start_date, end_date):
+    today = datetime.today().date()
+    if status == "READY_TO_OPEN":
+        return random.randint(0, 1500)
+    elif status == "OPEN":
+        days_open = (today - start_date).days
+        return days_open * random.randint(100, 1000)
+    elif status in ["CLOSED", "ARCHIVED"]:
+        days_open = (end_date - start_date).days
+        return days_open * random.randint(100, 1000)
+
 def generate_short_description(exhibition_name):
     name_parts = exhibition_name.split()
-    key_phrases = " ".join(name_parts[:2])  # Use first two words for simplicity
+    key_phrases = " ".join(name_parts[:2])
     description = f"{key_phrases} {random.choice(additional_descriptive_phrases)}."
     return description
 
@@ -241,33 +339,83 @@ def generate_long_description(exhibition_name, items):
     long_description = f"{introduction} {background} {highlights} {experience} {conclusion}"
     return long_description
 
-def generate_item():
+def determine_exhibition_status(start_date, end_date):
+    today = datetime.now().date()
+    one_year_after_end_date = end_date + timedelta(days=365)
+
+    if start_date > today:
+        return "READY_TO_OPEN"
+    elif start_date <= today < end_date:
+        return "OPEN"
+    elif today < one_year_after_end_date:
+        return "CLOSED"
+    else:
+        return "ARCHIVED"
+
+
+def generate_item(theme):
+    if theme not in periods:
+        raise ValueError(f"Invalid theme '{theme}'. Theme must be one of: {', '.join(periods.keys())}")
+
+    period_options = periods[theme]
+    period = random.choice(period_options)
+
+    category_options = item_categories[theme]
+    category = random.choice(category_options)
+
+    name = f"{fake.word().capitalize()} {category.lower()}"
+
+    description_template = random.choice(item_description_templates)
+    description = description_template.format(category=category.lower(), period=period.lower())
+
+    authors_name = fake.name()
+
+    year_ranges = {
+        "Ancient": (-5000, 500),
+        "Medieval": (500, 1500),
+        "Renaissance": (1300, 1600),
+        "Baroque": (1600, 1750),
+        "Modern": (1750, 1900),
+        "Contemporary": (1900, 2024),
+        "19th Century": (1801, 1900),
+        "20th Century": (1901, 2000),
+        "21st Century": (2001, 2024)
+    }
+    start_year, end_year = year_ranges[period]
+    year_of_creation = random.randint(start_year, end_year)
+
     return {
-        "name": fake.word(),
-        "description": fake.paragraph(nb_sentences=2),
-        "authorsName": fake.name(),
-        "yearOfCreation": str(fake.year()),
-        "period": fake.word(),
-        "category": random.choice(item_categories)
+        "name": name,
+        "description": description,
+        "authorsName": authors_name,
+        "yearOfCreation": str(year_of_creation),
+        "period": period,
+        "category": category
     }
 
 def generate_room():
+    floor = random.randint(1, 5)
+    room_base_number = floor * 10 + random.randint(0,9)
+    room_number = str(room_base_number)
+    if random.choice([True, False]):  # 50% chance to add a letter
+        room_number += random.choice('abcde')
     return {
-        "name": fake.word(),
-        "floor": str(random.randint(1, 5)),
-        "number": str(random.randint(100, 500))
+        "floor": str(floor),
+        "number": room_number
     }
 
 def generate_organizer():
+    organizer = random.choice(organizers)
     return {
-        "firstName": fake.first_name(),
-        "lastName": fake.last_name()
+        "firstName": organizer['firstName'],
+        "lastName": organizer['lastName']
     }
 
 def generate_curator():
+    curator = random.choice(curators)
     return {
-        "firstName": fake.first_name(),
-        "lastName": fake.last_name()
+        "firstName": curator['firstName'],
+        "lastName": curator['lastName']
     }
 
 def generate_review():
@@ -282,28 +430,22 @@ def generate_review():
         "rating": rating
     }
 
-# Generate a list of exhibitions
 def generate_exhibitions(num):
     return [generate_exhibition() for _ in range(num)]
 
-
 def save_to_excel(data, filename):
-    # Create a new workbook
     wb = Workbook()
-    ws = wb.active  # Get the active worksheet
+    ws = wb.active
 
-    # Define header row
     header = [
         'id', 'name', 'shortDescription', 'longDescription', 'theme', 'status', 'startDate', 'endDate',
         'price', 'ticketsSold', 'organizer_firstName', 'organizer_lastName',
-        'curator_firstName', 'curator_lastName', 'room_name', 'room_floor',
+        'curator_firstName', 'curator_lastName', 'room_floor',
         'room_number', 'items', 'reviews'
     ]
 
-    # Write header row
     ws.append(header)
 
-    # Write each exhibition as a row in the Excel worksheet
     for exhibition in data:
         items = [
             f"Name: {item['name']}, Description: {item['description']}, AuthorsName: {item['authorsName']}, YearOfCreation: {item['yearOfCreation']}, Period: {item['period']}, Category: {item['category']}"
@@ -329,7 +471,6 @@ def save_to_excel(data, filename):
             exhibition['organizer']['lastName'],
             exhibition['curator']['firstName'],
             exhibition['curator']['lastName'],
-            exhibition['room']['name'],
             exhibition['room']['floor'],
             exhibition['room']['number'],
             ' | '.join(items),
@@ -337,12 +478,42 @@ def save_to_excel(data, filename):
         ]
         ws.append(row)
 
-    # Save workbook to filename
     wb.save(filename)
 
+def index_exhibitions_to_elasticsearch(exhibitions):
+    actions = []
+    for exhibition in exhibitions:
+        action = {
+            "_index": "exhibition",  # Elasticsearch index name
+            "_source": {
+                "_class": ["rs.ac.uns.acs.nais.exhibition_service.model.Exhibition"],
+                "name": exhibition['name'],
+                "shortDescription": exhibition['shortDescription'],
+                "longDescription": exhibition['longDescription'],
+                "theme": exhibition['theme'],
+                "status": exhibition['status'],
+                "startDate": exhibition['startDate'],
+                "endDate": exhibition['endDate'],
+                "price": exhibition['price'],
+                "ticketsSold": exhibition['ticketsSold'],
+                "organizer": exhibition['organizer'],
+                "curator": exhibition['curator'],
+                "room": exhibition['room'],
+                "items": exhibition['items'],
+                "reviews": exhibition['reviews']
+            }
+        }
+        actions.append(action)
+
+    success, _ = bulk(es, actions)
+    print(f"Indexed {success} documents")
+
 if __name__ == "__main__":
-    num_exhibitions = 1000  # Change this number as needed
+    num_exhibitions = 1000
     exhibitions = generate_exhibitions(num_exhibitions)
-    save_to_excel(exhibitions, 'exhibitions.xlsx')
+    #save_to_excel(exhibitions, 'exhibitions.xlsx')
+    index_exhibitions_to_elasticsearch(exhibitions)
+    #if es.indices.exists(index="exhibition"):
+        #print("Index 'exhibition' already exists.")
 
 

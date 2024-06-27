@@ -11,8 +11,6 @@ import org.springframework.data.elasticsearch.annotations.Document;
 @Setter
 public class Room {
 
-    private String name;
-
     private String floor;
 
     private String number;

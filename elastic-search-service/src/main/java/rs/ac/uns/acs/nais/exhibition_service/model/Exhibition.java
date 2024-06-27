@@ -5,9 +5,12 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 import rs.ac.uns.acs.nais.exhibition_service.enums.ExhibitionStatus;
 import rs.ac.uns.acs.nais.exhibition_service.enums.ExhibitionTheme;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -30,9 +33,11 @@ public class Exhibition {
 
     private ExhibitionStatus status;
 
-    private Date startDate;
+    @Field(type = FieldType.Date)
+    private LocalDate startDate;
 
-    private Date endDate;
+    @Field(type = FieldType.Date)
+    private LocalDate endDate;
 
     private Integer price; // The price in whole euros
 
@@ -49,10 +54,11 @@ public class Exhibition {
     private Collection<Review> reviews;
 
     public boolean isOngoing() {
-        Date currentDate = new Date();
+        LocalDate currentDate = LocalDate.now();
         // The exhibition is ongoing if it has started and either has no end date (permanent) or hasn't ended yet (temporary).
-        return !currentDate.before(startDate) && (endDate == null || currentDate.before(endDate));
+        return !(currentDate.isBefore(startDate)) && (endDate == null || currentDate.isBefore(endDate));
     }
+
     public Double getRevenue() {
         return (double)price*ticketsSold;
     }

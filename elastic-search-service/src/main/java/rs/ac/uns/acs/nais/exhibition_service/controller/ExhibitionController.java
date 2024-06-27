@@ -1,11 +1,13 @@
 package rs.ac.uns.acs.nais.exhibition_service.controller;
 
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
+import rs.ac.uns.acs.nais.exhibition_service.dto.EventRequestDTO;
 import rs.ac.uns.acs.nais.exhibition_service.dto.ExhibitionRequestDTO;
 import rs.ac.uns.acs.nais.exhibition_service.dto.ExhibitionResponseDTO;
 import rs.ac.uns.acs.nais.exhibition_service.model.Exhibition;
+import rs.ac.uns.acs.nais.exhibition_service.model.MuseumEvent;
 import rs.ac.uns.acs.nais.exhibition_service.service.IExhibitionService;
 
 import java.util.ArrayList;
@@ -16,12 +18,6 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
@@ -51,6 +47,67 @@ public class ExhibitionController {
         }
     }
 
+    @GetMapping("/high-attendance")
+    public List<ExhibitionResponseDTO> findOpenExhibitionsWithHighAttendance(
+            @RequestParam(name = "minTicketsSold") int minTicketsSold,
+            @RequestParam(name = "minDailyTicketsSold") int minDailyAverage,
+            @RequestParam(name = "theme", required = true) String theme)
+    {
+        var exhibitions = convertToList(exhibitionService.findOpenExhibitionsWithHighAttendance(minTicketsSold, minDailyAverage, theme));
+        return exhibitions.stream().map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class)).collect(Collectors.toList());
+    }
+
+    @GetMapping("/search-by-description-startDate-ticketsSold")
+    public List<ExhibitionResponseDTO> findByDescriptionAndDateRangeAndMinTicketsSold(
+            @RequestParam(name = "searchText") String searchText,
+            @RequestParam(name = "minStartDate") String minStartDate,
+            @RequestParam(name = "maxStartDate") String maxStartDate,
+            @RequestParam(name = "minTicketsSold") int minTicketsSold) {
+
+        List<Exhibition> exhibitions = exhibitionService.findByDescriptionAndDateRangeAndMinTicketsSold(searchText, minStartDate, maxStartDate, minTicketsSold);
+        return exhibitions.stream()
+                .map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/search-by-review-text-theme-min-average-rating")
+    public List<ExhibitionResponseDTO> findByReviewTextAndCategoryAndMinRating(
+            @RequestParam(name = "reviewText") String reviewText,
+            @RequestParam(name = "theme") String theme,
+            @RequestParam(name = "minAverageRating") double minAverageRating) {
+
+        List<Exhibition> exhibitions = exhibitionService.findByReviewTextAndThemeAndMinAverageRating(reviewText, theme, minAverageRating);
+        return exhibitions.stream()
+                .map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/by-period-ticketsSold-status")
+    public List<ExhibitionResponseDTO> findByPeriodTextAndMinTicketsSoldAndStatus(
+            @RequestParam(name = "itemPeriod") String periodText,
+            @RequestParam(name = "minTicketsSold") int minTicketsSold,
+            @RequestParam(name = "status") String status) {
+
+        List<Exhibition> exhibitions = exhibitionService.findByPeriodTextAndMinTicketsSoldAndStatus(periodText, minTicketsSold, status);
+
+        return exhibitions.stream()
+                .map(exhibition -> modelMapper.map(exhibition, ExhibitionResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/average-ticket-price-for-item-category")
+    public Double averageTicketPriceByCategoryAndDescriptionAndStatus(
+            @RequestParam(name = "itemCategory") String category,
+            @RequestParam(name = "itemDescription") String description,
+            @RequestParam(name = "status") String status) {
+
+        if (description != null && !description.isBlank() && status != null && !status.isBlank()) {
+            return exhibitionService.getAverageTicketPriceByCategoryAndDescriptionAndStatus(category, description, status);
+        } else {
+            return null;
+        }
+    }
+
     @PostMapping
     public void addExhibition(@RequestBody ExhibitionRequestDTO request) {
         var exhibition = modelMapper.map(request, Exhibition.class);
@@ -60,6 +117,13 @@ public class ExhibitionController {
     @DeleteMapping("{id}")
     public void deleteExhibition(@PathVariable String id) {
         exhibitionService.deleteById(id);
+    }
+
+
+    @PutMapping("{id}")
+    public void updateExhibition(@PathVariable String id, @RequestBody ExhibitionRequestDTO request) {
+        var exhibition = modelMapper.map(request, Exhibition.class);
+        exhibitionService.update(id, exhibition);
     }
 
     private List<Exhibition> convertToList(Iterable<Exhibition> exhibitions) {

@@ -8,23 +8,18 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import lombok.RequiredArgsConstructor;
 import rs.ac.uns.acs.nais.exhibition_service.dto.EventRequestDTO;
 import rs.ac.uns.acs.nais.exhibition_service.dto.EventResponseDTO;
-import rs.ac.uns.acs.nais.exhibition_service.model.Event;
+import rs.ac.uns.acs.nais.exhibition_service.dto.OrganizerAverageRatingDTO;
+import rs.ac.uns.acs.nais.exhibition_service.model.MuseumEvent;
 import rs.ac.uns.acs.nais.exhibition_service.service.IEventService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "event")
+@RequestMapping(value = "events")
 public class EventController {
 
     private final IEventService eventService;
@@ -49,10 +44,28 @@ public class EventController {
         }
     }
 
+    @GetMapping("/organizer-events-average-rating")
+    public List<OrganizerAverageRatingDTO> findAverageRatingByOrganizer(
+            @RequestParam double minPrice,
+            @RequestParam(required = false, name = "searchReviewText") String searchText) {
+        return eventService.findAverageRatingByOrganizer(minPrice, searchText);
+    }
+
+    @GetMapping("/search-by-review-text-and-duration")
+    public List<MuseumEvent> findEventsByReviewTextAndDuration(
+            @RequestParam(name = "searchReviewText") String searchText,
+            @RequestParam int minDuration) {
+        return eventService.findEventsByReviewTextAndDuration(searchText, minDuration);
+    }
+
+
     @PostMapping
-    public void addEvent(@RequestBody EventRequestDTO request) {
-        var event = modelMapper.map(request, Event.class);
-        eventService.save(event);
+    public ResponseEntity<?> addEvent(@RequestBody EventRequestDTO request) {
+        var event = modelMapper.map(request, MuseumEvent.class);
+        System.out.println("ELASTICOOOO CUVANJEEEEEE " + event);
+        var saved = eventService.save(event);
+        System.out.println("ELASTICOOOO SACUVANOOOOO " + saved);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @DeleteMapping("{id}")
@@ -60,8 +73,16 @@ public class EventController {
         eventService.deleteById(id);
     }
 
-    private List<Event> convertToList(Iterable<Event> events) {
-        List<Event> eventsList = new ArrayList<>();
+
+    @PutMapping("{id}")
+    public void updateEvent(@PathVariable String id, @RequestBody EventRequestDTO request) {
+        var event = modelMapper.map(request, MuseumEvent.class);
+        eventService.update(id, event);
+    }
+
+
+    private List<MuseumEvent> convertToList(Iterable<MuseumEvent> events) {
+        List<MuseumEvent> eventsList = new ArrayList<>();
         events.forEach(eventsList::add);
         return eventsList;
     }

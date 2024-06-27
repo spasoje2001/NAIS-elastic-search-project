@@ -7,6 +7,7 @@ import rs.ac.uns.acs.nais.exhibition_service.enums.ExhibitionStatus;
 import rs.ac.uns.acs.nais.exhibition_service.enums.ExhibitionTheme;
 import rs.ac.uns.acs.nais.exhibition_service.model.*;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 
@@ -18,10 +19,10 @@ public class ExhibitionResponseDTO {
     private String longDescription;
     private ExhibitionTheme theme;
     private ExhibitionStatus status;
-    private Date startDate;
-    private Date endDate;
-    private Integer price; // The price in whole euros
-    private Integer ticketsSold; // The price in whole euros
+    private LocalDate startDate;
+    private LocalDate endDate;
+    private Integer price;
+    private Integer ticketsSold;
     private Organizer organizer;
     private Curator curator;
     private Room room;
